@@ -7,6 +7,7 @@ type InputFieldProps = {
   errorMessage?: string;
   value: string; // 추가
   onChange: (value: string) => void; // 추가
+  width?: string; // width 추가
 };
 
 const InputField = ({
@@ -16,6 +17,7 @@ const InputField = ({
   errorMessage,
   value,
   onChange,
+  width = "w-80", // 기본 너비를 w-80으로 설정
 }: InputFieldProps) => {
   const [isValid, setIsValid] = useState(true);
 
@@ -24,13 +26,13 @@ const InputField = ({
       setIsValid(onValidate(value));
     }
   };
-  console.log("test");
+
   return (
-    <div>
+    <>
       <input
         type={type}
         placeholder={placeholder}
-        className={`text-white w-80 h-10 border-b ${
+        className={`text-white ${width} h-10 border-b ${
           isValid ? "border-gray-200" : "border-red-500"
         } focus:border-blue-500 focus:outline-none transition-all duration-300 placeholder-gray-500`}
         value={value}
@@ -40,7 +42,7 @@ const InputField = ({
       {!isValid && errorMessage && (
         <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
       )}
-    </div>
+    </>
   );
 };
 

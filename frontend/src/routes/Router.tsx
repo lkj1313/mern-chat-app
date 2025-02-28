@@ -4,6 +4,7 @@ import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
 import HomePage from "../pages/HomePage";
 import PrivateRoute from "./PrivateRoute";
+import CreateRoomPage from "../pages/CreateRoomPage";
 
 const Router = () => {
   return (
@@ -15,6 +16,7 @@ const Router = () => {
         {/* PrivateRoute로 보호된 경로 */}
         <Route element={<PrivateRoute />}>
           <Route path="/home" element={<HomePage />} />
+          <Route path="create-room" element={<CreateRoomPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

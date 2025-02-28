@@ -8,7 +8,10 @@ const Sidebar = ({
   toggleSidebar: () => void;
 }) => {
   const navigate = useNavigate();
-
+  // 대화방 만들기 버튼 클릭 시 대화방 만들기 페이지로 이동
+  const handleCreateRoomClick = () => {
+    navigate("/create-room"); // 대화방 만들기 페이지로 이동
+  };
   const { user, setUser } = useUserStore();
   const handleLogout = () => {
     //로컬스토레지에서 토큰 및 정보 제거
@@ -95,8 +98,11 @@ const Sidebar = ({
             <span>{user?.name}</span>
           </section>
           <ul className="space-y-3 p-5">
-            <li className="cursor-pointer hover:bg-gray-800 p-2 rounded">
-              프로필
+            <li
+              onClick={handleCreateRoomClick}
+              className="cursor-pointer hover:bg-gray-800 p-2 rounded"
+            >
+              대화방 만들기
             </li>
             <li className="cursor-pointer hover:bg-gray-800 p-2 rounded">
               설정
