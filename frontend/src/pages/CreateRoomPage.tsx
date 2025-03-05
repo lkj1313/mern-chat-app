@@ -7,6 +7,13 @@ import InputField from "../components/InputField";
 const CreateRoomPage = () => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
+  const [roomImage, setRoomImage] = useState<File | null>(null); // ✅ `File` 객체로 저장
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setRoomImage(e.target.files[0]); // ✅ File 객체 저장
+    }
+  };
 
   const handleCreateRoom = async () => {
     if (!roomName.trim()) {
@@ -15,22 +22,31 @@ const CreateRoomPage = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5005/api/auth/create-room",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name: roomName }),
-        }
-      );
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      const formData = new FormData(); // ✅ FormData 객체 생성
+      formData.append("name", roomName); // ✅ 대화방 이름 추가
+      if (roomImage) {
+        formData.append("roomImage", roomImage); // ✅ 이미지 파일 추가
+      }
+
+      const response = await fetch("http://localhost:5005/api/rooms/create", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ JWT 토큰 추가
+        },
+        body: formData, // ✅ FormData 전송
+      });
 
       const data = await response.json();
 
       if (response.ok) {
         alert("대화방이 생성되었습니다!");
-        navigate(`/room/${data.room._id}`); // 대화방 페이지로 이동
+        navigate(`/room/${data.room._id}`);
       } else {
         alert("대화방 생성에 실패했습니다.");
       }
@@ -45,18 +61,41 @@ const CreateRoomPage = () => {
       <Header />
       <main className="bg-gray-800 h-full p-5">
         <div className="flex w-full">
-          <AiOutlinePicture className="w-16 h-16 bg-white border rounded-full mr-4" />
+          <label htmlFor="room-image-upload" className="cursor-pointer">
+            <input
+              id="room-image-upload"
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange} // 핸들러 함수 사용
+            />
+            {roomImage ? (
+              <img
+                src={URL.createObjectURL(roomImage)}
+                alt="Room Preview"
+                className="w-16 h-16 rounded-full border mr-4"
+              />
+            ) : (
+              <AiOutlinePicture className="w-16 h-16 bg-white border rounded-full mr-4" />
+            )}
+          </label>
           <div className="flex-grow">
             <InputField
               placeholder="대화방명"
               value={roomName}
               onChange={(value) => setRoomName(value)} // 입력 값 변경 시 상태 업데이트
-              width="w-full" // 기본적으로 전체 너비를 가질 수 있도록
-              // 나머지 공간을 차지하도록 설정
+              width="w-full"
             />
           </div>
         </div>
-        <button>aa</button>
+        <div className="w-full flex justify-end">
+          <button
+            onClick={handleCreateRoom}
+            className="bg-white text-gray-800 px-4 py-2 rounded-md cursor-pointer"
+          >
+            만들기
+          </button>
+        </div>
       </main>
     </div>
   );

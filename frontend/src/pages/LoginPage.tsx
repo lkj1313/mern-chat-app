@@ -34,13 +34,20 @@ const LoginPage = () => {
       }
 
       console.log("로그인 성공:", data);
-      localStorage.setItem("token", data.token); // JWT 토큰 저장
-      // Zustand로 유저 정보 업데이트
-      setUser({
+
+      // ✅ JWT 토큰 저장
+      localStorage.setItem("token", data.token);
+
+      // ✅ `user._id`를 Zustand와 localStorage에 함께 저장!
+      const userData = {
+        _id: data._id, // ✅ MongoDB에서 받은 유저 ID 저장
         name: data.name,
         email: data.email,
-        profilePicture: data.profilePicture || "/uploads/default-avatar.png", // 기본 이미지 경로
-      });
+        profilePicture: data.profilePicture || "/uploads/default-avatar.png",
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData)); // ✅ localStorage에 저장
+      setUser(userData); // ✅ Zustand 상태 업데이트
 
       navigate("/home"); // 로그인 성공 후 페이지 이동
     } catch (error: any) {

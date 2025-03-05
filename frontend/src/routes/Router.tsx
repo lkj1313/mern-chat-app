@@ -5,6 +5,8 @@ import SignupPage from "../pages/SignupPage";
 import HomePage from "../pages/HomePage";
 import PrivateRoute from "./PrivateRoute";
 import CreateRoomPage from "../pages/CreateRoomPage";
+import RoomPage from "../pages/RoomPage";
+import RoomInformationPage from "../pages/RoomInformationPage";
 
 const Router = () => {
   return (
@@ -17,6 +19,11 @@ const Router = () => {
         <Route element={<PrivateRoute />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="create-room" element={<CreateRoomPage />} />
+          <Route path="/room/:id" element={<RoomPage />} />
+          <Route
+            path="/room/:id/roominformation"
+            element={<RoomInformationPage />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
