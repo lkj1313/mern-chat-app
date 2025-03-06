@@ -68,23 +68,26 @@ const HomePage = () => {
           {filteredRooms.map((room) => (
             <div
               onClick={() => navigate(`/room/${room._id}`)}
-              className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded"
+              className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
             >
-              <div>
-                <img src={room.image} className="rounded-full w-16 h-16"></img>
+              <div className="w-16 h-16 flex-shrink-0">
+                <img
+                  src={room.image}
+                  className="rounded-full w-full h-full"
+                ></img>
               </div>
-              <div className="p-1 flex-grow border-b border-b-black">
+              <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
                 <div>{room.name}</div>
 
                 <div>
-                  {room.lastMessage ? (
-                    <>
-                      <span>{room.lastMessageSender}: </span>
-                      <span className="text-gray-500 text-[15px]">
-                        {room.lastMessage}
-                      </span>{" "}
-                    </>
-                  ) : null}
+                  <div className="max-w-[300px] overflow-hidden text-gray-500 text-[15px] whitespace-nowrap text-ellipsis">
+                    {room.lastMessage && (
+                      <>
+                        <span>{room.lastMessageSender}: </span>
+                        <span>{room.lastMessage}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

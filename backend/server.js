@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import path from "path";
+import multer from "multer";
 import { fileURLToPath } from "url";
 import { Server } from "socket.io"; // ✅ Socket.io 추가
 import Message from "./models/Message.js";
@@ -27,13 +28,28 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
-
+// ✅ `multer` 설정 (파일 저장 경로 및 이름 지정)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // ✅ 파일을 `uploads/` 폴더에 저장
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname); // ✅ 파일명을 현재 시간 + 원래 이름으로 저장
+  },
+});
+const upload = multer({ storage });
 app.use(express.json());
 app.use(cors());
 app.use("/api/auth", userRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+// ✅ 이미지 업로드 API 추가
+app.post("/api/messages/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "이미지가 업로드되지 않았습니다." });
+  }
+  res.json({ imageUrl: `/uploads/${req.file.filename}` });
+});
 // ✅ MongoDB 연결
 mongoose
   .connect(process.env.MONGO_URI)
@@ -67,26 +83,28 @@ io.on("connection", (socket) => {
       // ✅ 새 메시지 저장
       const newMessage = await Message.create({
         room: data.room,
-        sender: data.sender, // ✅ ObjectId로 저장됨
-        message: data.message,
+        sender: data.sender,
+        message: data.message || "", // ✅ 텍스트 메시지
+        imageUrl: data.imageUrl || null, // ✅ 이미지 메시지
+        timestamp: new Date(),
       });
 
-      // ✅ sender 필드를 `populate()` 해서 닉네임과 프로필 포함하여 클라이언트에 전송
+      // ✅ sender 정보 포함하여 클라이언트에 전송
       const populatedMessage = await newMessage.populate(
         "sender",
         "name profilePicture"
       );
 
-      // ✅ Room 컬렉션의 latestMessage 업데이트 (안전한 원자적 업데이트)
+      // ✅ Room 컬렉션 최신 메시지 업데이트
       await Room.findByIdAndUpdate(data.room, {
         $set: {
-          lastMessage: data.message, // ✅ 최신 메시지 업데이트
-          lastMessageSender: data.sender, // ✅ 최신 메시지 보낸 사람 업데이트
-          lastMessageAt: new Date(), // ✅ 마지막 메시지 시간 업데이트
+          lastMessage: data.message || "[이미지]",
+          lastMessageSender: data.sender,
+          lastMessageAt: new Date(),
         },
       });
 
-      // ✅ 모든 클라이언트에게 새 메시지 전송
+      // ✅ 메시지 전송
       io.to(data.room).emit("receive_message", populatedMessage);
     } catch (error) {
       console.error("❌ Message save failed:", error);

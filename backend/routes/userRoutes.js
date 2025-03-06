@@ -72,7 +72,7 @@ router.post("/login", async (req, res) => {
 
     // JWT 토큰 생성
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "4h",
     });
 
     // 로그인 성공 응답

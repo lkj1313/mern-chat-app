@@ -86,20 +86,48 @@ router.get("/", protect, async (req, res) => {
 // ✅ 2️⃣ 특정 대화방 정보 조회 API (방장 정보 포함)
 router.get("/:id", protect, async (req, res) => {
   try {
-    // `createdBy` 필드에서 `name`과 `email`을 가져와서 함께 반환
-    const room = await Room.findById(req.params.id).populate(
-      "createdBy",
-      "name email"
-    );
+    const room = await Room.findById(req.params.id)
+      .populate("createdBy", "name email")
+      .populate("users", "name email"); // ✅ 참여한 사용자 목록 포함
 
     if (!room) {
-      return res.status(404).json({ message: "Room not found" });
+      return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
     }
 
     res.status(200).json(room);
   } catch (error) {
     console.error("Error fetching room:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
+
+//대화방 참가
+router.put("/:id/join", protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id; // ✅ JWT에서 가져온 로그인한 사용자 ID
+
+    // ✅ 대화방 찾기
+    const room = await Room.findById(id);
+    if (!room) {
+      return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
+    }
+
+    // ✅ 이미 참가한 사용자라면 추가하지 않음
+    if (room.users.includes(userId)) {
+      return res
+        .status(200)
+        .json({ message: "이미 대화방에 참가한 사용자입니다.", room });
+    }
+
+    // ✅ 사용자 추가
+    room.users.push(userId);
+    await room.save();
+
+    res.status(200).json({ message: "대화방에 입장했습니다.", room });
+  } catch (error) {
+    console.error("Error joining room:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
   }
 });
 

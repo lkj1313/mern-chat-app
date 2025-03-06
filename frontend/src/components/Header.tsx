@@ -14,6 +14,7 @@ interface HeaderProps {
     name: string;
     image: string;
     createdBy: { name: string };
+    users: { _id: string; name: string; email: string }[];
   } | null; // ✅ 방 정보 prop 추가
 }
 
@@ -90,10 +91,16 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
             <div>
               <img
                 src={`${serverUrl}${roomInfo?.image}`}
-                className="w-10 h-10 rounded-full"
+                className="w-15 h-15 rounded-full"
               ></img>
             </div>
-            {roomInfo?.name}{" "}
+            <div>
+              <div> {roomInfo?.name} </div>
+              <div className="text-gray-400 text-[11px]">
+                {" "}
+                참가자 : {roomInfo?.users.length}명{" "}
+              </div>
+            </div>
           </div>
         ) : null}
       </div>
@@ -113,23 +120,6 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
             onClick={handleSearchClick}
           />
         ))}
-
-      {/* {id &&
-        (isSearching ? (
-          <input
-            type="text"
-            placeholder="대화방 검색..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="bg-gray-600 text-white px-3 py-1 rounded-lg focus:outline-none"
-          />
-        ) : (
-          <HiOutlineMagnifyingGlass
-            size={30}
-            className="cursor-pointer"
-            onClick={handleSearchClick}
-          />
-        ))} */}
 
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
     </header>
