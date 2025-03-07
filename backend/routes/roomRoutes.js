@@ -130,5 +130,65 @@ router.put("/:id/join", protect, async (req, res) => {
     res.status(500).json({ message: "서버 오류 발생" });
   }
 });
+// ✅ 4️⃣ 대화방 나가기 API (PUT 요청)
+router.put("/:id/leave", protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id; // ✅ 현재 로그인한 사용자 ID
+
+    // ✅ 대화방 찾기
+    const room = await Room.findById(id);
+    if (!room) {
+      return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
+    }
+
+    // ✅ 이미 방에 참여하고 있는지 확인
+    if (!room.users.includes(userId)) {
+      return res
+        .status(400)
+        .json({ message: "이 방에 참여하고 있지 않습니다." });
+    }
+
+    // ✅ 방에서 사용자 제거
+    room.users = room.users.filter(
+      (user) => user.toString() !== userId.toString()
+    );
+
+    await room.save();
+    res.status(200).json({ message: "방을 나갔습니다.", room });
+  } catch (error) {
+    console.error("❌ Error leaving room:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
+
+// 대화방 삭제 API (방장만 삭제 가능)
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id; // ✅ 현재 로그인한 사용자 ID
+
+    // ✅ 삭제할 대화방 찾기
+    const room = await Room.findById(id);
+    if (!room) {
+      return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
+    }
+
+    // ✅ 방장인지 확인
+    if (room.createdBy.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "방장만 대화방을 삭제할 수 있습니다." });
+    }
+
+    // ✅ 대화방 삭제
+    await Room.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "대화방이 성공적으로 삭제되었습니다." });
+  } catch (error) {
+    console.error("❌ Error deleting room:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
 
 export default router;

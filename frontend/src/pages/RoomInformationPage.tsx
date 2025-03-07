@@ -1,57 +1,64 @@
 import { useEffect, useState } from "react";
-import { IoChevronBack } from "react-icons/io5";
+
 import { useNavigate, useParams } from "react-router-dom";
-interface RoomType {
-  _id: string;
-  name: string;
-  image: string;
-  createdBy: { name: string; email: string }; // ✅ 방장 정보
-  users: { name: string; email: string }[]; // ✅ 참여자 목록
-}
+import { IoChevronBack } from "react-icons/io5";
+import { FaEllipsisVertical } from "react-icons/fa6";
+import { RoomType } from "../types/RoomType";
+
+import { fetchRoomDetails } from "../api/rooms";
+import RoomInformationMenu from "../components/room/RoomInformationMenu";
+
 const RoomInformationPage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
   const navigate = useNavigate();
   const { id } = useParams();
   const [room, setRoom] = useState<RoomType | null>(null);
+
+  console.log("room", room);
+
+  // 메뉴 열림 상태
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 뒤로가기 함수
   const handleGoBack = () => navigate(-1);
-  console.log(room);
+
+  //메뉴 열기 함수
+  const openMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(true);
+  };
+  const closeMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+  };
+  //채팅룸 정보 불러오기
   useEffect(() => {
-    const fetchRoomDetails = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          alert("로그인이 필요합니다.");
-          return;
-        }
-
-        const response = await fetch(`http://localhost:5005/api/rooms/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          setRoom(data);
-        } else {
-          alert("방 정보를 불러오는 데 실패했습니다.");
-        }
-      } catch (error) {
-        console.error("방 정보 불러오기 실패:", error);
+    const loadRoomDetail = async () => {
+      const response = await fetchRoomDetails(id!);
+      if (response.ok) {
+        setRoom(response.data);
+      } else {
+        console.log("방 정보 불러오기 실패");
       }
     };
-
-    fetchRoomDetails();
+    loadRoomDetail();
   }, [id]);
 
   return (
     <div>
-      <header className=" bg-gray-700 flex flex-col  p-5 gap-5">
-        <IoChevronBack
-          onClick={handleGoBack}
-          size={30}
-          className="cursor-pointer mr-16"
-        />
+      <header className=" bg-gray-700 flex flex-col relative  p-5 gap-5">
+        <div className="flex justify-between items-center ">
+          <IoChevronBack
+            onClick={handleGoBack}
+            size={30}
+            className="cursor-pointer mr-16"
+          />
+          <FaEllipsisVertical
+            size={20}
+            onClick={openMenu}
+            className="cursor-pointer"
+          />
+        </div>
         <div>
           <div className="flex gap-5">
             <img
@@ -61,6 +68,11 @@ const RoomInformationPage = () => {
             <div>{room?.name}</div>
           </div>
         </div>
+        <RoomInformationMenu
+          isMenuOpen={isMenuOpen}
+          closeMenu={closeMenu}
+          room={room}
+        />
       </header>
     </div>
   );

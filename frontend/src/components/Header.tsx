@@ -80,9 +80,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
 
         {location.pathname === "/create-room" ? (
           <div className="text-white flex text-[20px]">대화방 만들기</div>
-        ) : (
-          ""
-        )}
+        ) : null}
         {id ? (
           <div
             onClick={() => navigate("roominformation")}
