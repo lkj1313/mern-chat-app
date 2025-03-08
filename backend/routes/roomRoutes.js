@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import Room from "../models/Room.js";
+import Message from "../models/Message.js";
 import { protect } from "../middleware/authMiddleware.js"; // JWT 인증 미들웨어
 import dotenv from "dotenv";
 dotenv.config();
@@ -83,12 +84,12 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-// ✅ 2️⃣ 특정 대화방 정보 조회 API (방장 정보 포함)
+// 특정 대화방 정보 조회 API (방장 정보 포함)
 router.get("/:id", protect, async (req, res) => {
   try {
     const room = await Room.findById(req.params.id)
-      .populate("createdBy", "name email")
-      .populate("users", "name email"); // ✅ 참여한 사용자 목록 포함
+      .populate("createdBy", "name email profilePicture")
+      .populate("users", "name email profilePicture"); // ✅ 참여한 사용자 목록 포함
 
     if (!room) {
       return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
@@ -187,6 +188,26 @@ router.delete("/:id", protect, async (req, res) => {
     res.status(200).json({ message: "대화방이 성공적으로 삭제되었습니다." });
   } catch (error) {
     console.error("❌ Error deleting room:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
+
+// ✅ 특정 방의 이미지지 목록 가져오기 API
+router.get("/:roomId/image", protect, async (req, res) => {
+  try {
+    const { roomId } = req.params;
+
+    // ✅ 해당 방에서 이미지 메세지 찾기
+    const ImageMessages = await Message.find({
+      room: roomId,
+      imageUrl: { $exists: true },
+    })
+      .select("imageUrl sender createdAt")
+      .populate("sender", "name profilePicture"); // ✅ 보낸 사람 정보 포함
+    console.log(ImageMessages);
+    res.status(200).json(ImageMessages);
+  } catch (error) {
+    console.error("❌ Error fetching room media:", error);
     res.status(500).json({ message: "서버 오류 발생" });
   }
 });

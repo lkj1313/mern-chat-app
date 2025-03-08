@@ -62,17 +62,20 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
           <IoChevronBack
             size={30}
             className="cursor-pointer mr-16"
+            color="white"
             onClick={handleGoBack} // ✅ 검색창 닫기 버튼
           />
         ) : location.pathname === "/home" ? (
           <GiHamburgerMenu
             size={30}
             className="cursor-pointer"
+            color="white"
             onClick={toggleSidebar} // ✅ 햄버거 메뉴 클릭 이벤트
           />
         ) : (
           <IoChevronBack
             size={30}
+            color="white"
             className="cursor-pointer mr-16"
             onClick={handleGoBack} // ✅ 일반 뒤로 가기 버튼
           />
@@ -82,14 +85,12 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
           <div className="text-white flex text-[20px]">대화방 만들기</div>
         ) : null}
         {id ? (
-          <div
-            onClick={() => navigate("roominformation")}
-            className="flex items-center gap-3 text-white "
-          >
+          <div className="flex items-center gap-3 text-white ">
             <div>
               <img
+                onClick={() => navigate("roominformation")}
                 src={`${serverUrl}${roomInfo?.image}`}
-                className="w-15 h-15 rounded-full"
+                className="w-15 h-15 rounded-full cursor-pointer"
               ></img>
             </div>
             <div>
@@ -113,6 +114,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
           />
         ) : (
           <HiOutlineMagnifyingGlass
+            color="white"
             size={30}
             className="cursor-pointer"
             onClick={handleSearchClick}

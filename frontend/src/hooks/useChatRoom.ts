@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RoomType } from "../types/RoomType";
 import { UserType } from "../types/UserType";
-import { joinRoomAPI, fetchRoomDetails } from "../api/rooms";
+import { joinRoomAPI, fetchRoomDetailsAPI } from "../api/rooms";
 
 // ✅ 채팅방 정보를 관리하는 커스텀 훅
 const useChatRoom = (roomId: string | undefined, user: UserType | null) => {
@@ -33,7 +33,7 @@ const useChatRoom = (roomId: string | undefined, user: UserType | null) => {
     if (!roomId || !user) return;
 
     try {
-      const response = await fetchRoomDetails(roomId);
+      const response = await fetchRoomDetailsAPI(roomId);
 
       if (!response.ok) {
         alert("방 정보를 불러오지 못했습니다.");

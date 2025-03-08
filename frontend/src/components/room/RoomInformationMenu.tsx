@@ -74,20 +74,14 @@ const RoomMenu: React.FC<RoomMenuProps> = ({ isMenuOpen, closeMenu, room }) => {
       {isOwner ? (
         // 방장 메뉴
         <ul>
-          <li
-            onClick={handleDeleteRoom}
-            className="px-4 py-2 hover:bg-gray-600 cursor-pointer"
-          >
+          <li onClick={handleDeleteRoom} className="px-4 py-2  cursor-pointer">
             방 삭제
           </li>
         </ul>
       ) : (
         // 일반 유저 메뉴
         <ul>
-          <li
-            onClick={handleLeaveRoom}
-            className="px-4 py-2 hover:bg-gray-600 cursor-pointer"
-          >
+          <li onClick={handleLeaveRoom} className="px-4 py-2  cursor-pointer">
             방 나가기
           </li>
         </ul>

@@ -3,5 +3,10 @@ export interface RoomType {
   name: string;
   image: string;
   createdBy: { _id: string; name: string; email: string };
-  users: { _id: string; name: string; email: string }[];
+  users: {
+    profilePicture: string | undefined;
+    _id: string;
+    name: string;
+    email: string;
+  }[];
 }
