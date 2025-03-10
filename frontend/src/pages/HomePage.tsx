@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { format, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
+import { fetchAllChatsAPI } from "../api/rooms";
 
 interface RoomType {
   _id: string;
@@ -13,7 +14,9 @@ interface RoomType {
   lastMessageAt: string;
 }
 const HomePage = () => {
+  const serverUrl = import.meta.env.VITE_SERVER_URL;
   const [rooms, setRooms] = useState<RoomType[]>([]);
+
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
 
   const navigate = useNavigate();
@@ -26,39 +29,23 @@ const HomePage = () => {
       return format(date, "M월 d일", { locale: ko }); // 오늘이 아니면 '3월 8일'
     }
   }
+
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          alert("로그인이 필요합니다.");
-          navigate("/login");
-          return;
-        }
-
-        const response = await fetch("http://localhost:5005/api/rooms", {
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ JWT 토큰 포함
-          },
-        });
-
-        const data = await response.json();
-        console.log("🔹 대화방 목록:", data); // ✅ 콘솔에서 응답 확인
-
-        if (response.ok) {
-          setRooms(data);
-          setFilteredRooms(data); // ✅ 대화방 목록 상태 업데이트
-        } else {
-          alert(data.message || "대화방 목록을 불러오는 데 실패했습니다.");
-        }
-      } catch (error) {
-        console.error("대화방 목록 불러오기 실패:", error);
+    const loadChats = async () => {
+      const { ok, rooms } = await fetchAllChatsAPI();
+      if (ok) {
+        setRooms(rooms);
+      } else {
+        console.error("❌ 채팅 목록 불러오기 실패");
       }
     };
 
-    fetchRooms();
-  }, [navigate]);
+    loadChats();
+  }, []);
+  console.log(rooms);
+  useEffect(() => {
+    setFilteredRooms(rooms); // ✅ rooms가 업데이트되면 filteredRooms도 업데이트
+  }, [rooms]);
 
   // ✅ 검색어를 받아 필터링
   const handleSearch = (query: string) => {
@@ -85,9 +72,14 @@ const HomePage = () => {
             >
               <div className="w-16 h-16 flex-shrink-0">
                 <img
-                  src={room.image}
+                  src={
+                    room.image.startsWith("http")
+                      ? room.image
+                      : `${serverUrl}${room.image}`
+                  }
                   className="rounded-full w-full h-full"
-                ></img>
+                  alt={room.name}
+                />
               </div>
               <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
                 <div className="flex justify-between">

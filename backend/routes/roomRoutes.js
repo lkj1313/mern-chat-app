@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import Room from "../models/Room.js";
+import DirectChat from "../models/DirectChat.js";
 import Message from "../models/Message.js";
 import { protect } from "../middleware/authMiddleware.js"; // JWT 인증 미들웨어
 import dotenv from "dotenv";
@@ -80,6 +81,106 @@ router.get("/", protect, async (req, res) => {
     res.status(200).json(formattedRooms);
   } catch (error) {
     console.error("❌ Error fetching rooms:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
+
+// ✅ 내가 참여한 대화방 목록 조회 (최신 메시지 포함)
+router.get("/my", protect, async (req, res) => {
+  try {
+    const userId = req.user._id; // ✅ 현재 로그인한 사용자 ID
+
+    const rooms = await Room.find({ users: userId }) // ✅ 내가 참여한 방만 필터링
+      .populate("lastMessageSender", "name profilePicture")
+      .select("name image lastMessage lastMessageSender lastMessageAt");
+
+    const serverUrl = process.env.SERVER_URL || "http://localhost:5005"; // 기본값 설정
+
+    const formattedRooms = rooms.map((room) => ({
+      _id: room._id,
+      name: room.name,
+      image: room.image
+        ? room.image.startsWith("/uploads/")
+          ? `${serverUrl}${room.image}`
+          : room.image
+        : "https://via.placeholder.com/150", // 기본 이미지
+      lastMessage: room.lastMessage || "",
+      lastMessageSender: room.lastMessageSender
+        ? room.lastMessageSender.name
+        : "",
+      lastMessageAt: room.lastMessageAt || null,
+    }));
+
+    res.status(200).json(formattedRooms);
+  } catch (error) {
+    console.error("❌ Error fetching my rooms:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
+
+router.get("/all", protect, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // ✅ 유저가 속한 일반 채팅방 (그룹)
+    const groupRooms = await Room.find({ users: userId }) // ✅ users 필드 확인
+      .populate("lastMessageSender", "name profilePicture")
+      .select("name image lastMessage lastMessageSender lastMessageAt");
+
+    // ✅ 유저가 속한 1:1 채팅방
+    const directRooms = await DirectChat.find({ users: userId }) // ✅ 필터 확인
+      .populate("users", "name profilePicture email")
+      .populate("lastMessageSender", "name profilePicture")
+      .select("users lastMessage lastMessageSender lastMessageAt");
+
+    const serverUrl = process.env.SERVER_URL || "http://localhost:5005";
+
+    // ✅ 그룹 채팅 데이터 가공
+    const formattedGroupRooms = groupRooms.map((room) => ({
+      _id: room._id,
+      type: "group", // ✅ 그룹 채팅 구분
+      name: room.name,
+      image: room.image
+        ? room.image.startsWith("/uploads/")
+          ? `${serverUrl}${room.image}`
+          : room.image
+        : "https://via.placeholder.com/150",
+      lastMessage: room.lastMessage || "",
+      lastMessageSender: room.lastMessageSender
+        ? room.lastMessageSender.name
+        : "",
+      lastMessageAt: room.lastMessageAt || "1970-01-01T00:00:00.000Z",
+    }));
+
+    // ✅ 1:1 채팅 데이터 가공
+    const formattedDirectRooms = directRooms.map((room) => {
+      const otherUser = room.users.find(
+        (user) => user._id.toString() !== userId.toString()
+      );
+
+      return {
+        _id: room._id,
+        type: "direct", // ✅ 1:1 채팅 구분
+        name: otherUser ? otherUser.name : "알 수 없는 사용자",
+        image: otherUser
+          ? otherUser.profilePicture || "https://via.placeholder.com/150"
+          : "https://via.placeholder.com/150",
+        lastMessage: room.lastMessage || "",
+        lastMessageSender: room.lastMessageSender
+          ? room.lastMessageSender.name
+          : "",
+        lastMessageAt: room.lastMessageAt || "1970-01-01T00:00:00.000Z",
+      };
+    });
+
+    // ✅ 그룹 채팅 + 1:1 채팅 통합 후 최신 메시지 순으로 정렬
+    const rooms = [...formattedGroupRooms, ...formattedDirectRooms].sort(
+      (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
+    );
+
+    res.status(200).json(rooms);
+  } catch (error) {
+    console.error("❌ 대화 목록 불러오기 실패:", error);
     res.status(500).json({ message: "서버 오류 발생" });
   }
 });

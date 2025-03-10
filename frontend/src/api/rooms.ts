@@ -84,3 +84,18 @@ export const fetchRoomImageAPI = async (roomId: string) => {
   const data = await response.json();
   return { ok: response.ok, image: data };
 };
+
+// ✅ 일반 채팅방 + 1:1 채팅방을 한 번에 가져오는 API
+export const fetchAllChatsAPI = async () => {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${serverUrl}/api/rooms/all`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, rooms: data };
+};
