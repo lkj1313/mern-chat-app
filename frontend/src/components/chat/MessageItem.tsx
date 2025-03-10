@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MessageType } from "../../types/MessageType";
 
 type MessageItemProps = {
@@ -12,14 +13,16 @@ const MessageItem = ({ message, isMyMessage, serverUrl }: MessageItemProps) => {
       className={`mb-2 flex ${isMyMessage ? "justify-end" : "justify-start"}`}
     >
       {!isMyMessage && (
-        <img
-          src={
-            `${serverUrl}${message.sender.profilePicture}` ||
-            "/uploads/default-avatar.png"
-          }
-          alt={message.sender.name}
-          className="w-8 h-8 rounded-full object-cover mr-3"
-        />
+        <Link to={`/profile/${message.sender._id}`}>
+          <img
+            src={
+              `${serverUrl}${message.sender.profilePicture}` ||
+              "/uploads/default-avatar.png"
+            }
+            alt={message.sender.name}
+            className="w-8 h-8 rounded-full object-cover mr-3"
+          />
+        </Link>
       )}
       <div
         className={`p-3 rounded-lg max-w-xs ${

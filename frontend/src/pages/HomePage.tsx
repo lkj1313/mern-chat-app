@@ -1,18 +1,31 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
+import { format, isToday } from "date-fns";
+import { ko } from "date-fns/locale";
+
 interface RoomType {
   _id: string;
   name: string;
   image: string;
   lastMessage: string;
   lastMessageSender: string;
+  lastMessageAt: string;
 }
 const HomePage = () => {
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
-
+  console.log(rooms);
   const navigate = useNavigate();
+  function formatLastMessageTime(dateString: string) {
+    const date = new Date(dateString);
+
+    if (isToday(date)) {
+      return format(date, "a hh:mm", { locale: ko }); // 오늘이면 '오전 08:30'
+    } else {
+      return format(date, "M월 d일", { locale: ko }); // 오늘이 아니면 '3월 8일'
+    }
+  }
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -77,7 +90,12 @@ const HomePage = () => {
                 ></img>
               </div>
               <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
-                <div>{room.name}</div>
+                <div className="flex justify-between">
+                  <div>{room.name}</div>
+                  <div className="text-gray-500 text-[13px] ">
+                    {formatLastMessageTime(room.lastMessageAt)}
+                  </div>
+                </div>
 
                 <div>
                   <div className="max-w-[300px] overflow-hidden text-gray-500 text-[15px] whitespace-nowrap text-ellipsis">

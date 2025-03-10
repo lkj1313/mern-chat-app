@@ -7,6 +7,7 @@ import PrivateRoute from "./PrivateRoute";
 import CreateRoomPage from "../pages/CreateRoomPage";
 import RoomPage from "../pages/RoomPage";
 import RoomInformationPage from "../pages/RoomInformationPage";
+import ProfilePage from "../pages/ProfilePage";
 
 const Router = () => {
   return (
@@ -24,6 +25,7 @@ const Router = () => {
             path="/room/:id/roominformation"
             element={<RoomInformationPage />}
           />
+          <Route path="/profile/:userId" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

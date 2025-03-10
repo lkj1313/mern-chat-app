@@ -200,7 +200,7 @@ router.get("/:roomId/image", protect, async (req, res) => {
     // ✅ 해당 방에서 이미지 메세지 찾기
     const ImageMessages = await Message.find({
       room: roomId,
-      imageUrl: { $exists: true },
+      imageUrl: { $exists: true, $ne: null },
     })
       .select("imageUrl sender createdAt")
       .populate("sender", "name profilePicture"); // ✅ 보낸 사람 정보 포함

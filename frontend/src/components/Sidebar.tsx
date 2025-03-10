@@ -104,9 +104,7 @@ const Sidebar = ({
             >
               대화방 만들기
             </li>
-            <li className="cursor-pointer hover:bg-gray-800 p-2 rounded">
-              설정
-            </li>
+
             <li
               onClick={handleLogout}
               className="cursor-pointer hover:bg-gray-800 p-2 rounded"

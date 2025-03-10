@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { IoChevronBack } from "react-icons/io5";
 import { FaEllipsisVertical } from "react-icons/fa6";
 import { RoomType } from "../types/RoomType";
@@ -132,21 +132,23 @@ const RoomInformationPage = () => {
         {activeTab === "참가자" ? (
           room?.users.map((user) => {
             return (
-              <div className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-2 rounded group">
-                {/* 프로필 이미지 */}
-                <div className="w-16 h-16 flex-shrink-0">
-                  <img
-                    src={`${serverUrl}${user.profilePicture}`}
-                    className="rounded-full w-full h-full"
-                    alt="profile"
-                  />
-                </div>
+              <Link to={`/profile/${user._id}`}>
+                <div className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-2 rounded group">
+                  {/* 프로필 이미지 */}
+                  <div className="w-16 h-16 flex-shrink-0">
+                    <img
+                      src={`${serverUrl}${user.profilePicture}`}
+                      className="rounded-full w-full h-full"
+                      alt="profile"
+                    />
+                  </div>
 
-                <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
-                  {/* 닉네임 */}
-                  <div className="text-white font-medium">{user.name}</div>
+                  <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
+                    {/* 닉네임 */}
+                    <div className="text-white font-medium">{user.name}</div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             );
           })
         ) : (
