@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { format, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
 import { fetchAllChatsAPI } from "../api/rooms";
+import { UserType } from "../types/UserType";
+import { useAuth } from "../hooks/useAuth";
 
 interface RoomType {
   _id: string;
@@ -12,10 +14,13 @@ interface RoomType {
   lastMessage: string;
   lastMessageSender: string;
   lastMessageAt: string;
+  type: string;
+  users?: UserType[];
 }
 const HomePage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
   const [rooms, setRooms] = useState<RoomType[]>([]);
+  const { user: currentUser } = useAuth();
 
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
 
@@ -65,43 +70,57 @@ const HomePage = () => {
       <Header onSearch={handleSearch} />
       <div className="p-5 bg-gray-800 min-h-screen text-white">
         <div className="flex flex-col gap-10">
-          {filteredRooms.map((room) => (
-            <div
-              onClick={() => navigate(`/room/${room._id}`)}
-              className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
-            >
-              <div className="w-16 h-16 flex-shrink-0">
-                <img
-                  src={
-                    room.image.startsWith("http")
-                      ? room.image
-                      : `${serverUrl}${room.image}`
-                  }
-                  className="rounded-full w-full h-full"
-                  alt={room.name}
-                />
-              </div>
-              <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
-                <div className="flex justify-between">
-                  <div>{room.name}</div>
-                  <div className="text-gray-500 text-[13px] ">
-                    {formatLastMessageTime(room.lastMessageAt)}
-                  </div>
-                </div>
+          {filteredRooms.map((room) => {
+            // ✅ 1:1 채팅일 경우 상대방 ID 찾기 (users 배열이 없을 수도 있으므로 기본값 `[]` 추가)
+            const directChatPartnerId =
+              room.type === "direct" && (room.users?.length ?? 0) > 0
+                ? room.users!.find((user) => user._id !== currentUser?._id)?._id
+                : null;
 
-                <div>
-                  <div className="max-w-[300px] overflow-hidden text-gray-500 text-[15px] whitespace-nowrap text-ellipsis">
-                    {room.lastMessage && (
-                      <>
-                        <span>{room.lastMessageSender}: </span>
-                        <span>{room.lastMessage}</span>
-                      </>
-                    )}
+            return (
+              <div
+                key={room._id}
+                onClick={
+                  () =>
+                    room.type === "direct" && directChatPartnerId
+                      ? navigate(`/dm/${directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
+                      : navigate(`/room/${room._id}`) // ✅ 그룹 채팅이면 기존 방식 유지
+                }
+                className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
+              >
+                <div className="w-16 h-16 flex-shrink-0">
+                  <img
+                    src={
+                      room.image.startsWith("http")
+                        ? room.image
+                        : `${serverUrl}${room.image}`
+                    }
+                    className="rounded-full w-full h-full"
+                    alt={room.name}
+                  />
+                </div>
+                <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
+                  <div className="flex justify-between">
+                    <div>{room.name}</div>
+                    <div className="text-gray-500 text-[13px] ">
+                      {formatLastMessageTime(room.lastMessageAt)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="max-w-[300px] overflow-hidden text-gray-500 text-[15px] whitespace-nowrap text-ellipsis">
+                      {room.lastMessage && (
+                        <>
+                          <span>{room.lastMessageSender}: </span>
+                          <span>{room.lastMessage}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

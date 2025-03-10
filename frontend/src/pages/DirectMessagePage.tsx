@@ -27,6 +27,7 @@ const DirectMessagePage = () => {
         image: chatPartner?.profilePicture || "/uploads/default-avatar.png", // ✅ 상대방 프로필 이미지
         users: [chatPartner || { _id: "", name: "알 수 없음", email: "" }],
         createdBy: { name: "" }, // ✅ 1:1 채팅에서는 방장 정보 필요 없음
+        type: "direct",
       }
     : null;
 

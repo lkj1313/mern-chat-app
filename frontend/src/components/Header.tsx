@@ -4,6 +4,7 @@ import { IoChevronBack } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
+import { useAuth } from "../hooks/useAuth";
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 interface HeaderProps {
@@ -14,6 +15,7 @@ interface HeaderProps {
     image: string;
     createdBy?: { name: string }; // ✅ 1:1 채팅에서는 방장이 없을 수 있음
     users: { _id: string; name: string; email: string }[];
+    type?: string;
   } | null;
 }
 
@@ -21,10 +23,10 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { user: currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
+  console.log("룸인포", roomInfo);
   const toggleSidebar = () => setIsOpen(!isOpen);
   const handleGoBack = () => {
     if (isSearching) {
@@ -75,7 +77,17 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
           <div className="flex items-center gap-3 text-white">
             <div>
               <img
-                onClick={() => navigate("roominformation")}
+                onClick={() =>
+                  roomInfo.type === "direct" && roomInfo.users?.length > 0
+                    ? navigate(
+                        `/profile/${
+                          roomInfo.users.find(
+                            (user) => user._id !== currentUser?._id
+                          )?._id
+                        }`
+                      )
+                    : navigate("roominformation")
+                }
                 src={`${serverUrl}${roomInfo.image}`}
                 className="w-15 h-15 rounded-full cursor-pointer"
                 alt="Room Avatar"

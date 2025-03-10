@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import { Server } from "socket.io"; // ✅ Socket.io 추가
 import Message from "./models/Message.js";
 import Room from "./models/Room.js";
-
+import DirectChat from "./models/DirectChat.js";
 // __dirname 생성 (ES Module 호환)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,14 +97,27 @@ io.on("connection", (socket) => {
         "name profilePicture"
       );
 
-      // ✅ Room 컬렉션 최신 메시지 업데이트
-      await Room.findByIdAndUpdate(data.room, {
-        $set: {
-          lastMessage: data.message || "[이미지]",
-          lastMessageSender: data.sender,
-          lastMessageAt: new Date(),
-        },
-      });
+      // ✅ Room 또는 DirectChat 컬렉션 업데이트
+      const room = await Room.findById(data.room);
+      if (room) {
+        // ✅ 그룹 채팅 (Room) 업데이트
+        await Room.findByIdAndUpdate(data.room, {
+          $set: {
+            lastMessage: data.message || "[이미지]",
+            lastMessageSender: data.sender,
+            lastMessageAt: new Date(),
+          },
+        });
+      } else {
+        // ✅ 1:1 채팅 (DirectChat) 업데이트
+        await DirectChat.findByIdAndUpdate(data.room, {
+          $set: {
+            lastMessage: data.message || "[이미지]",
+            lastMessageSender: data.sender,
+            lastMessageAt: new Date(),
+          },
+        });
+      }
 
       // ✅ 메시지 전송
       io.to(data.room).emit("receive_message", populatedMessage);
