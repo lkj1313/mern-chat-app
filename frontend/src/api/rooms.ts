@@ -1,6 +1,23 @@
 // api/rooms.ts
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
+// ✅ 1:1 채팅 생성 API
+export const createDirectChatAPI = async (id: string) => {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${serverUrl}/api/directChat/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ id }),
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, chat: data.chat };
+};
+// 대호방 디테일정보
 export const fetchRoomDetailsAPI = async (roomId: string) => {
   const token = localStorage.getItem("token");
   const response = await fetch(`${serverUrl}/api/rooms/${roomId}`, {
@@ -12,7 +29,7 @@ export const fetchRoomDetailsAPI = async (roomId: string) => {
   const data = await response.json();
   return { ok: response.ok, data };
 };
-
+// 방들어가기 API
 export const joinRoomAPI = async (roomId: string) => {
   const token = localStorage.getItem("token");
   const response = await fetch(`${serverUrl}/api/rooms/${roomId}/join`, {
@@ -26,7 +43,7 @@ export const joinRoomAPI = async (roomId: string) => {
   const data = await response.json();
   return { ok: response.ok, room: data.room };
 };
-
+// 방삭제 API
 export const deleteRoomApI = async (roomId: string) => {
   const token = localStorage.getItem("token");
   const response = await fetch(`${serverUrl}/api/rooms/${roomId}`, {

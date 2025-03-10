@@ -15,7 +15,7 @@ interface RoomType {
 const HomePage = () => {
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
-  console.log(rooms);
+
   const navigate = useNavigate();
   function formatLastMessageTime(dateString: string) {
     const date = new Date(dateString);
@@ -72,7 +72,7 @@ const HomePage = () => {
     );
     setFilteredRooms(filtered);
   };
-  console.log(filteredRooms);
+
   return (
     <div className="relative overflow-hidden">
       <Header onSearch={handleSearch} />

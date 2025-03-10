@@ -1,8 +1,7 @@
 import { GiHamburgerMenu } from "react-icons/gi";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { IoChevronBack } from "react-icons/io5";
-
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 const serverUrl = import.meta.env.VITE_SERVER_URL;
@@ -13,96 +12,88 @@ interface HeaderProps {
     _id: string;
     name: string;
     image: string;
-    createdBy: { name: string };
+    createdBy?: { name: string }; // ✅ 1:1 채팅에서는 방장이 없을 수 있음
     users: { _id: string; name: string; email: string }[];
-  } | null; // ✅ 방 정보 prop 추가
+  } | null;
 }
 
 const Header = ({ onSearch, roomInfo }: HeaderProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { id } = useParams();
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
+  const toggleSidebar = () => setIsOpen(!isOpen);
   const handleGoBack = () => {
     if (isSearching) {
-      // ✅ 검색 중이면 검색창 닫기
       setIsSearching(false);
       setSearchQuery("");
-      onSearch?.(""); // ✅ 부모 컴포넌트(HomePage)에도 빈 검색어 전달
+      onSearch?.("");
     } else {
-      // ✅ 일반적인 뒤로 가기 동작
       navigate(-1);
     }
   };
 
-  // ✅ 돋보기 클릭 시 검색창 활성화
-  const handleSearchClick = () => {
-    setIsSearching(true);
-  };
-
-  // ✅ 검색 입력 핸들러 (부모 컴포넌트로 검색어 전달)
+  const handleSearchClick = () => setIsSearching(true);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    onSearch?.(query); // ✅ 부모(HomePage)로 검색어 전달
+    onSearch?.(query);
   };
 
   return (
     <header className="bg-gray-700 min-h-25 flex items-center justify-between px-5">
       <div className="flex items-center">
-        {/* ✅ `isSearching`이 true이면 뒤로 가기 버튼 표시, 아니면 기존 버튼 */}
+        {/* ✅ 뒤로가기 버튼 */}
         {isSearching ? (
           <IoChevronBack
             size={30}
             className="cursor-pointer mr-16"
             color="white"
-            onClick={handleGoBack} // ✅ 검색창 닫기 버튼
+            onClick={handleGoBack}
           />
         ) : location.pathname === "/home" ? (
           <GiHamburgerMenu
             size={30}
             className="cursor-pointer"
             color="white"
-            onClick={toggleSidebar} // ✅ 햄버거 메뉴 클릭 이벤트
+            onClick={toggleSidebar}
           />
         ) : (
           <IoChevronBack
             size={30}
             color="white"
             className="cursor-pointer mr-16"
-            onClick={handleGoBack} // ✅ 일반 뒤로 가기 버튼
+            onClick={handleGoBack}
           />
         )}
 
-        {location.pathname === "/create-room" ? (
-          <div className="text-white flex text-[20px]">대화방 만들기</div>
-        ) : null}
-        {id ? (
-          <div className="flex items-center gap-3 text-white ">
+        {/* ✅ 방 이름과 이미지 (1:1 채팅 & 그룹 채팅 모두 지원) */}
+        {roomInfo ? (
+          <div className="flex items-center gap-3 text-white">
             <div>
               <img
                 onClick={() => navigate("roominformation")}
-                src={`${serverUrl}${roomInfo?.image}`}
+                src={`${serverUrl}${roomInfo.image}`}
                 className="w-15 h-15 rounded-full cursor-pointer"
-              ></img>
+                alt="Room Avatar"
+              />
             </div>
             <div>
-              <div> {roomInfo?.name} </div>
-              <div className="text-gray-400 text-[11px]">
-                {" "}
-                참가자 : {roomInfo?.users.length}명{" "}
-              </div>
+              <div>{roomInfo.name}</div>
+              {roomInfo.users.length > 1 && ( // ✅ 그룹 채팅인 경우만 표시
+                <div className="text-gray-400 text-[11px]">
+                  참가자: {roomInfo.users.length}명
+                </div>
+              )}
             </div>
           </div>
         ) : null}
       </div>
+
+      {/* ✅ 검색 기능 */}
       {location.pathname === "/home" &&
         (isSearching ? (
           <input

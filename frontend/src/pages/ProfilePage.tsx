@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { IoChevronBack } from "react-icons/io5";
 import { FaEllipsisVertical } from "react-icons/fa6";
 import { useEffect, useState } from "react";
@@ -7,15 +7,15 @@ import { UserType } from "../types/UserType";
 import messageIcon from "../assets/icons/messageIcon.png";
 const ProfilePage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
-  const { userId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
-  console.log(userId);
+
   const handleGoBack = () => navigate(-1);
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) return;
-      const { ok, user } = await fetchUserInfoAPI(userId);
+      if (!id) return;
+      const { ok, user } = await fetchUserInfoAPI(id);
       if (ok) {
         setUser(user);
       } else {
@@ -23,8 +23,8 @@ const ProfilePage = () => {
       }
     };
     fetchUser();
-  }, [userId]);
-  console.log(user);
+  }, [id]);
+
   return (
     <div className="bg-gray-900">
       <header className=" bg-gray-700 flex flex-col p-5  gap-5 relative">
@@ -56,9 +56,11 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
-        <div className="w-15 h-15 flex items-center justify-center  absolute -bottom-8 right-2 rounded-full bg-blue-300">
-          <img className="w-10 h-10" src={messageIcon}></img>
-        </div>
+        <Link to={`/dm/${user?._id}`}>
+          <div className="w-15 h-15 flex items-center justify-center  absolute -bottom-8 right-2 rounded-full bg-blue-300">
+            <img className="w-10 h-10" src={messageIcon}></img>
+          </div>
+        </Link>
       </header>
 
       <main className="bg-gray-800 p-5">

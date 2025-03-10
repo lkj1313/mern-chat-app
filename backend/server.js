@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 
 import userRoutes from "./routes/userRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import directChatRoutes from "./routes/directChatRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -42,6 +43,7 @@ app.use(express.json());
 app.use(cors());
 app.use("/api/auth", userRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/directChat", directChatRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ✅ 이미지 업로드 API 추가
 app.post("/api/messages/upload", upload.single("image"), (req, res) => {

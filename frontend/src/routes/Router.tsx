@@ -8,6 +8,7 @@ import CreateRoomPage from "../pages/CreateRoomPage";
 import RoomPage from "../pages/RoomPage";
 import RoomInformationPage from "../pages/RoomInformationPage";
 import ProfilePage from "../pages/ProfilePage";
+import DirectMessagePage from "../pages/DirectMessagePage";
 
 const Router = () => {
   return (
@@ -25,7 +26,8 @@ const Router = () => {
             path="/room/:id/roominformation"
             element={<RoomInformationPage />}
           />
-          <Route path="/profile/:userId" element={<ProfilePage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/dm/:id" element={<DirectMessagePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
