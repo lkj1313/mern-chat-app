@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { uploadImageMessage } from "../api/messages";
 import MessageInput from "../components/chat/MessageInput";
 import useMessages from "../hooks/useMessage";
@@ -12,12 +12,12 @@ const DirectMessagePage = () => {
   const { user } = useAuth();
   const { id } = useParams(); // ✅ 상대방 userId 가져오기
   const [message, setMessage] = useState("");
-
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   // ✅ 1:1 채팅방 정보 가져오기
   const { chat, chatPartner } = useDirectChat(id, user);
-  console.log(chatPartner);
+
   // ✅ 소켓 연결 및 메시지 상태 관리
-  const { messages, sendMessage, messagesEndRef } = useMessages(chat?._id);
+  const { messages, sendMessage } = useMessages(chat?._id);
 
   // ✅ `Header`에 맞게 `roomInfo` 변환
   const roomInfo = chat
@@ -66,7 +66,11 @@ const DirectMessagePage = () => {
 
   // ✅ 메시지가 변경될 때 자동 스크롤
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100); // ✅ 100ms 지연 후 스크롤 실행 (렌더링 완료 대기)
+    }
   }, [messages]);
 
   // ✅ 채팅방이 없을 경우 UI 처리

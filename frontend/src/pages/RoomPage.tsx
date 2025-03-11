@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { uploadImageMessage } from "../api/messages";
 
 import MessageInput from "../components/chat/MessageInput";
@@ -12,7 +12,7 @@ import MessageList from "../components/chat/MessageList";
 const RoomPage = () => {
   // ✅ 현재 로그인한 사용자 정보 가져오기
   const { user } = useAuth();
-
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   // ✅ 현재 URL에서 방 ID 가져오기
   const { id } = useParams();
 
@@ -23,7 +23,7 @@ const RoomPage = () => {
   const { room } = useChatRoom(id, user);
 
   // ✅ 소켓 연결 및 메시지 상태 관리를 위한 훅 사용
-  const { messages, sendMessage, messagesEndRef } = useMessages(id);
+  const { messages, sendMessage } = useMessages(id);
 
   // ✅ 텍스트 메시지를 보내는 함수
   const handleSendMessage = () => {
@@ -61,7 +61,11 @@ const RoomPage = () => {
 
   // ✅ 메시지가 변경될 때마다 메시지 목록 하단으로 자동 스크롤
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100); // ✅ 100ms 지연 후 스크롤 실행 (렌더링 완료 대기)
+    }
   }, [messages]);
 
   return (

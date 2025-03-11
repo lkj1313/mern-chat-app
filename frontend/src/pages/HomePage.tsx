@@ -5,7 +5,6 @@ import { format, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
 import { fetchAllChatsAPI } from "../api/rooms";
 import { UserType } from "../types/UserType";
-import { useAuth } from "../hooks/useAuth";
 
 interface RoomType {
   _id: string;
@@ -16,11 +15,11 @@ interface RoomType {
   lastMessageAt: string;
   type: string;
   users?: UserType[];
+  directChatPartnerId?: string;
 }
 const HomePage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
   const [rooms, setRooms] = useState<RoomType[]>([]);
-  const { user: currentUser } = useAuth();
 
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
 
@@ -47,7 +46,7 @@ const HomePage = () => {
 
     loadChats();
   }, []);
-  console.log(rooms);
+
   useEffect(() => {
     setFilteredRooms(rooms); // ✅ rooms가 업데이트되면 filteredRooms도 업데이트
   }, [rooms]);
@@ -72,29 +71,21 @@ const HomePage = () => {
         <div className="flex flex-col gap-10">
           {filteredRooms.map((room) => {
             // ✅ 1:1 채팅일 경우 상대방 ID 찾기 (users 배열이 없을 수도 있으므로 기본값 `[]` 추가)
-            const directChatPartnerId =
-              room.type === "direct" && (room.users?.length ?? 0) > 0
-                ? room.users!.find((user) => user._id !== currentUser?._id)?._id
-                : null;
 
             return (
               <div
                 key={room._id}
                 onClick={
                   () =>
-                    room.type === "direct" && directChatPartnerId
-                      ? navigate(`/dm/${directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
+                    room.type === "direct"
+                      ? navigate(`/dm/${room.directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
                       : navigate(`/room/${room._id}`) // ✅ 그룹 채팅이면 기존 방식 유지
                 }
                 className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
               >
                 <div className="w-16 h-16 flex-shrink-0">
                   <img
-                    src={
-                      room.image.startsWith("http")
-                        ? room.image
-                        : `${serverUrl}${room.image}`
-                    }
+                    src={`${serverUrl}${room.image}`}
                     className="rounded-full w-full h-full"
                     alt={room.name}
                   />

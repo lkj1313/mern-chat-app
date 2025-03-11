@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import { useState } from "react";
 import { useUserStore } from "../store/useUserStore";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 const LoginPage = () => {
   const navigate = useNavigate();
   const { setUser } = useUserStore();
@@ -19,7 +20,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5005/api/auth/login", {
+      const response = await fetch(`${serverUrl}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

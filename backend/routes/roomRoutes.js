@@ -127,24 +127,20 @@ router.get("/all", protect, async (req, res) => {
       .populate("lastMessageSender", "name profilePicture")
       .select("name image lastMessage lastMessageSender lastMessageAt");
 
-    // ✅ 유저가 속한 1:1 채팅방 (상대방 정보 포함)
+    // ✅ 유저가 속한 1:1 채팅방
     const directRooms = await DirectChat.find({ users: userId })
       .populate("users", "name profilePicture email")
       .populate("lastMessageSender", "name profilePicture")
       .select("users lastMessage lastMessageSender lastMessageAt");
 
-    const serverUrl = process.env.SERVER_URL || "http://localhost:5005";
-
-    // ✅ 그룹 채팅 데이터 가공
+    // ✅ 그룹 채팅 데이터 가공 (절대 URL 제거)
     const formattedGroupRooms = groupRooms.map((room) => ({
       _id: room._id,
       type: "group",
       name: room.name,
-      image: room.image
-        ? room.image.startsWith("/uploads/")
-          ? `${serverUrl}${room.image}`
-          : room.image
-        : "https://via.placeholder.com/150",
+      image: room.image.startsWith("/uploads/")
+        ? room.image
+        : "/uploads/default.png", // ✅ 항상 `/uploads/...` 형식으로만 반환
       lastMessage: room.lastMessage || "",
       lastMessageSender: room.lastMessageSender
         ? room.lastMessageSender.name
@@ -152,7 +148,7 @@ router.get("/all", protect, async (req, res) => {
       lastMessageAt: room.lastMessageAt || "1970-01-01T00:00:00.000Z",
     }));
 
-    // ✅ 1:1 채팅 데이터 가공 (상대방 ID 추가)
+    // ✅ 1:1 채팅 데이터 가공 (`directChatPartnerId` 추가)
     const formattedDirectRooms = directRooms.map((room) => {
       const otherUser = room.users.find(
         (user) => user._id.toString() !== userId.toString()
@@ -163,18 +159,16 @@ router.get("/all", protect, async (req, res) => {
         type: "direct",
         name: otherUser ? otherUser.name : "알 수 없는 사용자",
         image: otherUser
-          ? otherUser.profilePicture || "https://via.placeholder.com/150"
-          : "https://via.placeholder.com/150",
+          ? otherUser.profilePicture.startsWith("/uploads/")
+            ? otherUser.profilePicture
+            : "/uploads/default.png"
+          : "/uploads/default.png",
         lastMessage: room.lastMessage || "",
         lastMessageSender: room.lastMessageSender
           ? room.lastMessageSender.name
           : "",
         lastMessageAt: room.lastMessageAt || "1970-01-01T00:00:00.000Z",
-        users: room.users.map((user) => ({
-          _id: user._id,
-          name: user.name,
-          profilePicture: user.profilePicture,
-        })), // ✅ users 배열 포함
+        directChatPartnerId: otherUser ? otherUser._id : null, // ✅ 상대방 ID 추가
       };
     });
 

@@ -1,11 +1,10 @@
 // hooks/useMessages.ts
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "../utils/socket";
 import { MessageType } from "../types/MessageType";
 
 const useMessages = (roomId: string | undefined) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!roomId) return;
@@ -25,15 +24,11 @@ const useMessages = (roomId: string | undefined) => {
     };
   }, [roomId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const sendMessage = (messageData: any) => {
     socket.emit("send_message", messageData);
   };
 
-  return { messages, sendMessage, messagesEndRef };
+  return { messages, sendMessage };
 };
 
 export default useMessages;

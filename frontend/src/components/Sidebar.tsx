@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 const Sidebar = ({
   isOpen,
   toggleSidebar,
@@ -36,7 +37,7 @@ const Sidebar = ({
 
     try {
       const response = await fetch(
-        "http://localhost:5005/api/auth/upload-profile-picture",
+        `${serverUrl}/api/auth/upload-profile-picture`,
         {
           method: "POST",
           body: formData,
@@ -85,7 +86,7 @@ const Sidebar = ({
             <label htmlFor="file-upload">
               <img
                 className="w-16 rounded-full mb-3 cursor-pointer"
-                src={`http://localhost:5005${user?.profilePicture}`}
+                src={`${serverUrl}${user?.profilePicture}`}
                 alt="profile"
               />
             </label>

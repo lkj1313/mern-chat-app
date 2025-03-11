@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { AiOutlinePicture } from "react-icons/ai";
 import InputField from "../components/InputField";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const CreateRoomPage = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const CreateRoomPage = () => {
         formData.append("roomImage", roomImage); // ✅ 이미지 파일 추가
       }
 
-      const response = await fetch("http://localhost:5005/api/rooms/create", {
+      const response = await fetch(`${serverUrl}/api/rooms/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // ✅ JWT 토큰 추가

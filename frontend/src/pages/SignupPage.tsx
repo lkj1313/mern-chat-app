@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
-
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 const SignupPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -40,7 +40,7 @@ const SignupPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5005/api/auth/register", {
+      const response = await fetch(`${serverUrl}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
