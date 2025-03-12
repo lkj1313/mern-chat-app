@@ -1,4 +1,3 @@
-// hooks/useMessages.ts
 import { useEffect, useState } from "react";
 import { socket } from "../utils/socket";
 import { MessageType } from "../types/MessageType";
@@ -9,7 +8,10 @@ const useMessages = (roomId: string | undefined) => {
   useEffect(() => {
     if (!roomId) return;
 
-    socket.connect(); // 수동 연결
+    // 연결되지 않은 경우에만 connect
+    if (!socket.connected) {
+      socket.connect(); // 수동 연결
+    }
     socket.emit("join_room", roomId);
 
     socket.on("load_messages", setMessages);
@@ -20,7 +22,9 @@ const useMessages = (roomId: string | undefined) => {
     return () => {
       socket.off("load_messages");
       socket.off("receive_message");
-      socket.disconnect(); // 컴포넌트 언마운트 시 연결 끊기
+      if (socket.connected) {
+        socket.disconnect(); // 컴포넌트 언마운트 시 연결 끊기
+      }
     };
   }, [roomId]);
 
