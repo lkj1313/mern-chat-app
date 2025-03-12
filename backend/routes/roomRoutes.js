@@ -27,7 +27,7 @@ router.post(
     try {
       const { name } = req.body;
       const createdBy = req.user._id; // JWT 토큰에서 로그인한 사용자 ID 가져오기
-
+      console.log(1);
       // ✅ 업로드된 파일이 있으면 파일 경로 사용, 없으면 기본 이미지
       const imageUrl = req.file
         ? `/uploads/${req.file.filename}`
@@ -52,38 +52,38 @@ router.post(
   }
 );
 
-// ✅ 대화방 목록 조회 (최신 메시지 포함)
-router.get("/", protect, async (req, res) => {
-  try {
-    const rooms = await Room.find()
-      .populate("lastMessageSender", "name profilePicture") // ✅ 보낸 사람의 이름과 프로필 가져오기
-      .select("name image lastMessage lastMessageSender lastMessageAt");
+// // ✅ 대화방 목록 조회 (최신 메시지 포함)
+// router.get("/", protect, async (req, res) => {
+//   try {
+//     const rooms = await Room.find()
+//       .populate("lastMessageSender", "name profilePicture") // ✅ 보낸 사람의 이름과 프로필 가져오기
+//       .select("name image lastMessage lastMessageSender lastMessageAt");
 
-    // ✅ 환경 변수에서 서버 URL 가져오기
-    const serverUrl = process.env.SERVER_URL || "http://localhost:5005"; // 기본값 설정
+//     // ✅ 환경 변수에서 서버 URL 가져오기
+//     const serverUrl = process.env.SERVER_URL || "http://localhost:5005"; // 기본값 설정
 
-    // ✅ 응답 데이터 형식 변환
-    const formattedRooms = rooms.map((room) => ({
-      _id: room._id,
-      name: room.name,
-      image: room.image
-        ? room.image.startsWith("/uploads/")
-          ? `${serverUrl}${room.image}` // ✅ 서버 주소 추가
-          : room.image
-        : "https://via.placeholder.com/150", // ✅ 기본 이미지
-      lastMessage: room.lastMessage || "", // ✅ 최신 메시지
-      lastMessageSender: room.lastMessageSender
-        ? room.lastMessageSender.name
-        : "", // ✅ 보낸 사람 이름 포함
-      lastMessageAt: room.lastMessageAt || null, // ✅ 최신 메시지 시간 추가
-    }));
+//     // ✅ 응답 데이터 형식 변환
+//     const formattedRooms = rooms.map((room) => ({
+//       _id: room._id,
+//       name: room.name,
+//       image: room.image
+//         ? room.image.startsWith("/uploads/")
+//           ? `${serverUrl}${room.image}` // ✅ 서버 주소 추가
+//           : room.image
+//         : "https://via.placeholder.com/150", // ✅ 기본 이미지
+//       lastMessage: room.lastMessage || "", // ✅ 최신 메시지
+//       lastMessageSender: room.lastMessageSender
+//         ? room.lastMessageSender.name
+//         : "", // ✅ 보낸 사람 이름 포함
+//       lastMessageAt: room.lastMessageAt || null, // ✅ 최신 메시지 시간 추가
+//     }));
 
-    res.status(200).json(formattedRooms);
-  } catch (error) {
-    console.error("❌ Error fetching rooms:", error);
-    res.status(500).json({ message: "서버 오류 발생" });
-  }
-});
+//     res.status(200).json(formattedRooms);
+//   } catch (error) {
+//     console.error("❌ Error fetching rooms:", error);
+//     res.status(500).json({ message: "서버 오류 발생" });
+//   }
+// });
 
 // ✅ 내가 참여한 대화방 목록 조회 (최신 메시지 포함)
 router.get("/my", protect, async (req, res) => {
@@ -121,7 +121,7 @@ router.get("/my", protect, async (req, res) => {
 router.get("/all", protect, async (req, res) => {
   try {
     const userId = req.user._id;
-
+    console.log("🔍 현재 로그인한 사용자 ID:", userId); // ✅ 유저 확인
     // ✅ 유저가 속한 일반 채팅방 (그룹)
     const groupRooms = await Room.find({ users: userId })
       .populate("lastMessageSender", "name profilePicture")
@@ -132,20 +132,24 @@ router.get("/all", protect, async (req, res) => {
       .populate("users", "name profilePicture email")
       .populate("lastMessageSender", "name profilePicture")
       .select("users lastMessage lastMessageSender lastMessageAt");
+    // ✅ MongoDB에서 가져온 데이터 확인 (로그 찍기)
+    console.log(
+      "📌 [BEFORE PROCESSING] groupRooms:",
+      groupRooms.map((r) => r.image)
+    );
+    console.log("📌 [BEFORE PROCESSING] directRooms:");
 
-    // ✅ 그룹 채팅 데이터 가공 (절대 URL 제거)
     const formattedGroupRooms = groupRooms.map((room) => ({
       _id: room._id,
       type: "group",
       name: room.name,
-      image: room.image.startsWith("/uploads/")
-        ? room.image
-        : "/uploads/default.png", // ✅ 항상 `/uploads/...` 형식으로만 반환
+      image: room.image,
+
       lastMessage: room.lastMessage || "",
       lastMessageSender: room.lastMessageSender
         ? room.lastMessageSender.name
         : "",
-      lastMessageAt: room.lastMessageAt || "1970-01-01T00:00:00.000Z",
+      lastMessageAt: room.lastMessageAt ? room.lastMessageAt : null, // ✅ 기본값을 `null`로 변경
     }));
 
     // ✅ 1:1 채팅 데이터 가공 (`directChatPartnerId` 추가)
@@ -167,7 +171,7 @@ router.get("/all", protect, async (req, res) => {
         lastMessageSender: room.lastMessageSender
           ? room.lastMessageSender.name
           : "",
-        lastMessageAt: room.lastMessageAt || "1970-01-01T00:00:00.000Z",
+        lastMessageAt: room.lastMessageAt ? room.lastMessageAt : null, // ✅ 기본값을 `null`로 변경
         directChatPartnerId: otherUser ? otherUser._id : null, // ✅ 상대방 ID 추가
       };
     });

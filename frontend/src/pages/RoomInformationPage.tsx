@@ -65,8 +65,6 @@ const RoomInformationPage = () => {
     loadRoomImg();
   }, [id]);
 
-  console.log("📌 현재 상태: ", images); // ✅ 상태 업데이트 확인
-
   return (
     <div className="bg-gray-900">
       <header className=" bg-gray-700 flex flex-col relative  p-5 gap-5 mb-3">

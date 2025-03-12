@@ -5,6 +5,7 @@ import { format, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
 import { fetchAllChatsAPI } from "../api/rooms";
 import { UserType } from "../types/UserType";
+import { useAuth } from "../hooks/useAuth";
 
 interface RoomType {
   _id: string;
@@ -22,10 +23,18 @@ const HomePage = () => {
   const [rooms, setRooms] = useState<RoomType[]>([]);
 
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
-
+  const { user: currentUser } = useAuth();
+  console.log(currentUser);
   const navigate = useNavigate();
-  function formatLastMessageTime(dateString: string) {
+  function formatLastMessageTime(dateString: string | null) {
+    if (!dateString) return ""; // ✅ 빈 값이면 아무것도 반환
+
     const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      console.warn("❌ 잘못된 날짜 값:", dateString); // ❗️유효하지 않은 날짜 확인
+      return "";
+    }
 
     if (isToday(date)) {
       return format(date, "a hh:mm", { locale: ko }); // 오늘이면 '오전 08:30'
@@ -34,6 +43,7 @@ const HomePage = () => {
     }
   }
 
+  console.log(rooms);
   useEffect(() => {
     const loadChats = async () => {
       const { ok, rooms } = await fetchAllChatsAPI();
@@ -70,22 +80,37 @@ const HomePage = () => {
       <div className="p-5 bg-gray-800 min-h-screen text-white">
         <div className="flex flex-col gap-10">
           {filteredRooms.map((room) => {
-            // ✅ 1:1 채팅일 경우 상대방 ID 찾기 (users 배열이 없을 수도 있으므로 기본값 `[]` 추가)
+            // ✅ 현재 로그인한 유저 ID
+            const currentUserId = currentUser?._id;
 
+            // ✅ 1:1 채팅방일 경우, 상대방 ID 찾기
+            let directChatPartnerId: string | undefined;
+
+            if (room.type === "direct" && room.users && currentUserId) {
+              const otherUser = room.users.find(
+                (user) => user._id !== currentUserId
+              );
+              directChatPartnerId = otherUser?._id;
+            }
+            console.log("찾은 상대방 ID:", directChatPartnerId);
             return (
               <div
                 key={room._id}
                 onClick={
                   () =>
                     room.type === "direct"
-                      ? navigate(`/dm/${room.directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
+                      ? navigate(`/dm/${directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
                       : navigate(`/room/${room._id}`) // ✅ 그룹 채팅이면 기존 방식 유지
                 }
                 className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
               >
                 <div className="w-16 h-16 flex-shrink-0">
                   <img
-                    src={`${serverUrl}${room.image}`}
+                    src={
+                      room.image.startsWith("/uploads/")
+                        ? `${serverUrl}${room.image}` // ✅ 상대 경로면 서버 URL 붙이기
+                        : room.image // ✅ 이미 절대 URL이면 그대로 사용
+                    }
                     className="rounded-full w-full h-full"
                     alt={room.name}
                   />
