@@ -27,7 +27,8 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173", // 로컬 개발 환경
-      "https://3.26.153.179.nip.io", // 🔥 배포된 클라이언트 추가
+      "https://3.26.153.179.nip.io",
+      "https://mern-chart-app.vercel.app", // 🔥 배포된 클라이언트 추가
     ],
     methods: ["GET", "POST"],
     credentials: true,
@@ -37,7 +38,11 @@ const io = new Server(server, {
 // ✅ Express CORS 설정
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://3.26.153.179.nip.io"],
+    origin: [
+      "http://localhost:5173",
+      "https://3.26.153.179.nip.io",
+      "https://mern-chart-app.vercel.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
