@@ -25,11 +25,19 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173", // 로컬 개발 환경
-      "https://3.26.153.179.nip.io",
-      "https://mern-chart-app.vercel.app", // 🔥 배포된 클라이언트 추가
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://3.26.153.179.nip.io",
+        "https://mern-chart-app.vercel.app",
+      ];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },
