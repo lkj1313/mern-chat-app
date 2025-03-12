@@ -8,6 +8,8 @@ import multer from "multer";
 import { fileURLToPath } from "url";
 import { Server } from "socket.io"; // ✅ Socket.io 추가
 import Message from "./models/Message.js";
+import Room from "./models/Room.js";
+import DirectChat from "./models/DirectChat.js";
 
 // ✅ 라우트 가져오기
 import userRoutes from "./routes/userRoutes.js";
