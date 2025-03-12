@@ -1,12 +1,5 @@
 import mongoose from "mongoose";
 
-const generateDefaultImage = (name) => {
-  const firstLetter = name.charAt(0).toUpperCase(); // 첫 글자 (대문자로 변환)
-  const bgColor = "3498db"; // 파란색 (원하는 색상으로 변경 가능)
-
-  return `https://via.placeholder.com/150/${bgColor}/ffffff?text=${firstLetter}`;
-};
-
 const roomSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true }, // 대화방 이름
