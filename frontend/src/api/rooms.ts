@@ -99,3 +99,18 @@ export const fetchAllChatsAPI = async () => {
   const data = await response.json();
   return { ok: response.ok, rooms: data };
 };
+
+// 일반 채팅방 정보 가져오는 api
+export const fetchAllChatRooms = async () => {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${serverUrl}/api/rooms/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, rooms: data };
+};

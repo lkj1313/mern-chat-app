@@ -52,38 +52,31 @@ router.post(
   }
 );
 
-// // ✅ 대화방 목록 조회 (최신 메시지 포함)
-// router.get("/", protect, async (req, res) => {
-//   try {
-//     const rooms = await Room.find()
-//       .populate("lastMessageSender", "name profilePicture") // ✅ 보낸 사람의 이름과 프로필 가져오기
-//       .select("name image lastMessage lastMessageSender lastMessageAt");
+// ✅ 대화방 목록 조회 (최신 메시지 포함)
+router.get("/", protect, async (req, res) => {
+  try {
+    const rooms = await Room.find()
+      .populate("lastMessageSender", "name profilePicture") // ✅ 보낸 사람의 이름과 프로필 가져오기
+      .select("name image lastMessage lastMessageSender lastMessageAt");
 
-//     // ✅ 환경 변수에서 서버 URL 가져오기
-//     const serverUrl = process.env.SERVER_URL || "http://localhost:5005"; // 기본값 설정
+    // ✅ 응답 데이터 형식 변환
+    const formattedRooms = rooms.map((room) => ({
+      _id: room._id,
+      name: room.name,
+      image: room.image,
+      lastMessage: room.lastMessage || "", // ✅ 최신 메시지
+      lastMessageSender: room.lastMessageSender
+        ? room.lastMessageSender.name
+        : "", // ✅ 보낸 사람 이름 포함
+      lastMessageAt: room.lastMessageAt || null, // ✅ 최신 메시지 시간 추가
+    }));
 
-//     // ✅ 응답 데이터 형식 변환
-//     const formattedRooms = rooms.map((room) => ({
-//       _id: room._id,
-//       name: room.name,
-//       image: room.image
-//         ? room.image.startsWith("/uploads/")
-//           ? `${serverUrl}${room.image}` // ✅ 서버 주소 추가
-//           : room.image
-//         : "https://via.placeholder.com/150", // ✅ 기본 이미지
-//       lastMessage: room.lastMessage || "", // ✅ 최신 메시지
-//       lastMessageSender: room.lastMessageSender
-//         ? room.lastMessageSender.name
-//         : "", // ✅ 보낸 사람 이름 포함
-//       lastMessageAt: room.lastMessageAt || null, // ✅ 최신 메시지 시간 추가
-//     }));
-
-//     res.status(200).json(formattedRooms);
-//   } catch (error) {
-//     console.error("❌ Error fetching rooms:", error);
-//     res.status(500).json({ message: "서버 오류 발생" });
-//   }
-// });
+    res.status(200).json(formattedRooms);
+  } catch (error) {
+    console.error("❌ Error fetching rooms:", error);
+    res.status(500).json({ message: "서버 오류 발생" });
+  }
+});
 
 // ✅ 내가 참여한 대화방 목록 조회 (최신 메시지 포함)
 router.get("/my", protect, async (req, res) => {
@@ -94,16 +87,10 @@ router.get("/my", protect, async (req, res) => {
       .populate("lastMessageSender", "name profilePicture")
       .select("name image lastMessage lastMessageSender lastMessageAt");
 
-    const serverUrl = process.env.SERVER_URL || "http://localhost:5005"; // 기본값 설정
-
     const formattedRooms = rooms.map((room) => ({
       _id: room._id,
       name: room.name,
-      image: room.image
-        ? room.image.startsWith("/uploads/")
-          ? `${serverUrl}${room.image}`
-          : room.image
-        : "https://via.placeholder.com/150", // 기본 이미지
+      image: room.image,
       lastMessage: room.lastMessage || "",
       lastMessageSender: room.lastMessageSender
         ? room.lastMessageSender.name

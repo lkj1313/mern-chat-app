@@ -3,9 +3,8 @@ import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { format, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
-import { fetchAllChatsAPI } from "../api/rooms";
+import { fetchAllChatRooms, fetchAllChatsAPI } from "../api/rooms";
 import { UserType } from "../types/UserType";
-import { useAuth } from "../hooks/useAuth";
 
 interface RoomType {
   _id: string;
@@ -20,11 +19,11 @@ interface RoomType {
 }
 const HomePage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
-  const [rooms, setRooms] = useState<RoomType[]>([]);
+  const [joinRooms, setJoinRooms] = useState<RoomType[]>([]);
+  const [allRooms, setAllRooms] = useState<RoomType[]>([]);
 
   const [filteredRooms, setFilteredRooms] = useState<RoomType[]>([]); // ✅ 상태 타입 추가
-  const { user: currentUser } = useAuth();
-  console.log(currentUser);
+
   const navigate = useNavigate();
   function formatLastMessageTime(dateString: string | null) {
     if (!dateString) return ""; // ✅ 빈 값이면 아무것도 반환
@@ -43,12 +42,17 @@ const HomePage = () => {
     }
   }
 
-  console.log(rooms);
   useEffect(() => {
     const loadChats = async () => {
-      const { ok, rooms } = await fetchAllChatsAPI();
-      if (ok) {
-        setRooms(rooms);
+      // 1. 모든 채팅방 가져오기
+      const { ok: allChatsOk, rooms: allChats } = await fetchAllChatsAPI();
+      // 2. 일반 채팅방 가져오기
+      const { ok: chatRoomsOk, rooms: chatRooms } = await fetchAllChatRooms();
+
+      // 두 데이터를 합침
+      if (allChatsOk && chatRoomsOk) {
+        setAllRooms(chatRooms); // 모든 채팅방을 합친 목록
+        setJoinRooms(allChats); // 사용자가 참여한 일반 채팅방 목록
       } else {
         console.error("❌ 채팅 목록 불러오기 실패");
       }
@@ -58,48 +62,36 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    setFilteredRooms(rooms); // ✅ rooms가 업데이트되면 filteredRooms도 업데이트
-  }, [rooms]);
+    setFilteredRooms(joinRooms); // ✅ rooms가 업데이트되면 filteredRooms도 업데이트
+  }, [joinRooms]);
 
-  // ✅ 검색어를 받아 필터링
+  // 검색 기능
   const handleSearch = (query: string) => {
     if (!query) {
-      setFilteredRooms(rooms); // 검색어가 없으면 전체 목록 표시
+      setFilteredRooms(joinRooms); // 검색어가 없으면 전체 목록 표시
       return;
     }
 
-    const filtered = rooms.filter((room) =>
+    // **모든 채팅방**을 기준으로 검색하기
+    const filtered = allRooms.filter((room) =>
       room.name.toLowerCase().includes(query.toLowerCase())
     );
-    setFilteredRooms(filtered);
-  };
 
+    setFilteredRooms(filtered); // 검색된 방 목록으로 상태 업데이트
+  };
   return (
     <div className="relative overflow-hidden">
       <Header onSearch={handleSearch} />
       <div className="p-5 bg-gray-800 min-h-screen text-white">
         <div className="flex flex-col gap-10">
           {filteredRooms.map((room) => {
-            // ✅ 현재 로그인한 유저 ID
-            const currentUserId = currentUser?._id;
-
-            // ✅ 1:1 채팅방일 경우, 상대방 ID 찾기
-            let directChatPartnerId: string | undefined;
-
-            if (room.type === "direct" && room.users && currentUserId) {
-              const otherUser = room.users.find(
-                (user) => user._id !== currentUserId
-              );
-              directChatPartnerId = otherUser?._id;
-            }
-            console.log("찾은 상대방 ID:", directChatPartnerId);
             return (
               <div
                 key={room._id}
                 onClick={
                   () =>
                     room.type === "direct"
-                      ? navigate(`/dm/${directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
+                      ? navigate(`/dm/${room.directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
                       : navigate(`/room/${room._id}`) // ✅ 그룹 채팅이면 기존 방식 유지
                 }
                 className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
