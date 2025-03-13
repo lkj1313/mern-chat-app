@@ -24,7 +24,6 @@ const RoomPage = () => {
 
   // ✅ 소켓 연결 및 메시지 상태 관리를 위한 훅 사용
   const { messages, sendMessage } = useMessages(id);
-  console.log(messages);
 
   // ✅ 텍스트 메시지를 보내는 함수
   const handleSendMessage = () => {

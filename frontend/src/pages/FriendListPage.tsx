@@ -38,7 +38,7 @@ const FriendListPage = () => {
   useEffect(() => {
     fetchFriends();
   }, []);
-  console.log("친구들", friends);
+
   return (
     <div className="flex flex-col text-white">
       <Header />

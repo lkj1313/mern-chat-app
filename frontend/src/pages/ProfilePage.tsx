@@ -77,7 +77,7 @@ const ProfilePage = () => {
     fetchUser();
     checkFriendStatus();
   }, [id]);
-  console.log(user);
+
   return (
     <div className="bg-gray-900">
       <header className=" bg-gray-700 flex flex-col p-5  gap-5 relative">

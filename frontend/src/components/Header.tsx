@@ -26,7 +26,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
   const { user: currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  console.log("룸인포", roomInfo);
+
   const toggleSidebar = () => setIsOpen(!isOpen);
   const handleGoBack = () => {
     if (isSearching) {

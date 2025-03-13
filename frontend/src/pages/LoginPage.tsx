@@ -34,8 +34,6 @@ const LoginPage = () => {
         throw new Error(data.message || "로그인 실패");
       }
 
-      console.log("로그인 성공:", data);
-
       // ✅ JWT 토큰 저장
       localStorage.setItem("token", data.token);
 
