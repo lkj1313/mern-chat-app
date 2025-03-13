@@ -9,6 +9,7 @@ import RoomPage from "../pages/RoomPage";
 import RoomInformationPage from "../pages/RoomInformationPage";
 import ProfilePage from "../pages/ProfilePage";
 import DirectMessagePage from "../pages/DirectMessagePage";
+import FriendListPage from "../pages/FriendListPage";
 
 const Router = () => {
   return (
@@ -28,6 +29,7 @@ const Router = () => {
           />
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/dm/:id" element={<DirectMessagePage />} />
+          <Route path="/friendlist" element={<FriendListPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

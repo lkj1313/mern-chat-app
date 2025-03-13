@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 const Sidebar = ({
@@ -105,7 +105,11 @@ const Sidebar = ({
             >
               대화방 만들기
             </li>
-
+            <Link to="/friendlist">
+              <li className="cursor-pointer hover:bg-gray-800 p-2 rounded">
+                친구 목록
+              </li>
+            </Link>
             <li
               onClick={handleLogout}
               className="cursor-pointer hover:bg-gray-800 p-2 rounded"

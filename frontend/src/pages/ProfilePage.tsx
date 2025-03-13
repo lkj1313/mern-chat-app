@@ -5,13 +5,65 @@ import { useEffect, useState } from "react";
 import { fetchUserInfoAPI } from "../api/user";
 import { UserType } from "../types/UserType";
 import messageIcon from "../assets/icons/messageIcon.png";
+
+import ProfileMenu from "../components/room/ProfileMenu";
+import { addFriendAPI, checkFriendAPI, removeFriendAPI } from "../api/friend";
 const ProfilePage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // 메뉴 열림 상태
+  const [isFriend, setIsFriend] = useState(false); // 친구 상태
+  //메뉴 열기 함수
+  const openMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(true);
+  };
+  //메뉴 닫기 함수
+  const closeMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+  };
 
+  //뒤로가기 함수
   const handleGoBack = () => navigate(-1);
+
+  // ✅ 친구 상태 확인 함수 (백엔드에서 가져오기)
+  const checkFriendStatus = async () => {
+    if (!id) return;
+    const response = await checkFriendAPI(id);
+    if (response.ok) {
+      setIsFriend(response.isFriend);
+    }
+  };
+  // ✅ 친구 추가 함수
+  const handleAddFriend = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!id) return;
+
+    const response = await addFriendAPI(id);
+    if (response.ok) {
+      alert("친구가 추가되었습니다!");
+      await checkFriendStatus();
+    } else {
+      alert(response.message);
+    }
+  };
+  // ✅ 친구 삭제 함수
+  const handleRemoveFriend = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!id) return;
+
+    const response = await removeFriendAPI(id);
+    if (response.ok) {
+      alert("친구가 삭제되었습니다!");
+      await checkFriendStatus();
+    } else {
+      alert(response.message);
+    }
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       if (!id) return;
@@ -23,8 +75,9 @@ const ProfilePage = () => {
       }
     };
     fetchUser();
+    checkFriendStatus();
   }, [id]);
-
+  console.log(user);
   return (
     <div className="bg-gray-900">
       <header className=" bg-gray-700 flex flex-col p-5  gap-5 relative">
@@ -35,13 +88,21 @@ const ProfilePage = () => {
             color="white"
             className="cursor-pointer mr-16"
           />
+          {/* :버튼 */}
           <FaEllipsisVertical
             color="white"
             size={20}
-            // onClick={openMenu}
+            onClick={openMenu}
             className="cursor-pointer"
           />
         </div>
+        <ProfileMenu
+          isMenuOpen={isMenuOpen}
+          closeMenu={closeMenu}
+          onAddFriend={handleAddFriend}
+          onRemoveFriend={handleRemoveFriend}
+          isFriend={isFriend}
+        />
 
         <div>
           <div className="flex gap-5 items-center">

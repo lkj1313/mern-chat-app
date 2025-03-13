@@ -6,7 +6,7 @@ import { FaEllipsisVertical } from "react-icons/fa6";
 import { RoomType } from "../types/RoomType";
 
 import { fetchRoomDetailsAPI, fetchRoomImageAPI } from "../api/rooms";
-import RoomInformationMenu from "../components/room/RoomInformationMenu";
+import RoomInformationMenu from "../components/room/RoomMenu";
 
 const RoomInformationPage = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
@@ -23,12 +23,11 @@ const RoomInformationPage = () => {
 
   const [activeTab, setActiveTab] = useState("참가자");
 
-  // 메뉴 열림 상태
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   // 뒤로가기 함수
   const handleGoBack = () => navigate(-1);
 
+  // 메뉴 열림 상태
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   //메뉴 열기 함수
   const openMenu = (e: React.MouseEvent) => {
     e.stopPropagation();

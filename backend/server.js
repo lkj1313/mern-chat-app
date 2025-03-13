@@ -15,6 +15,7 @@ import DirectChat from "./models/DirectChat.js";
 import userRoutes from "./routes/userRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import directChatRoutes from "./routes/directChatRoutes.js";
+import friendRoutes from "./routes/friendRoutes.js";
 
 // ✅ ES 모듈 환경에서 __dirname 설정
 const __filename = fileURLToPath(import.meta.url);
@@ -77,6 +78,7 @@ app.post("/api/messages/upload", upload.single("image"), (req, res) => {
 app.use("/api/auth", userRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/directChat", directChatRoutes);
+app.use("/api/friends", friendRoutes);
 
 // ✅ MongoDB 연결
 mongoose
