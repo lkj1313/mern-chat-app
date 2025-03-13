@@ -32,7 +32,7 @@ const InputField = ({
       <input
         type={type}
         placeholder={placeholder}
-        className={`text-white ${width} h-10 border-b ${
+        className={`p-1 text-white ${width} h-10 border-b ${
           isValid ? "border-gray-200" : "border-red-500"
         } focus:border-blue-500 focus:outline-none transition-all duration-300 placeholder-gray-500`}
         value={value}
