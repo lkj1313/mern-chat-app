@@ -5,6 +5,7 @@ import { UserType } from "../types/UserType";
 import { IoTrash } from "react-icons/io5"; // ❌ 친구 삭제 아이콘
 import messageIcon from "../assets/icons/messageIcon.png"; // DM 아이콘
 import Header from "../components/Header";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const FriendListPage = () => {
   const [friends, setFriends] = useState<UserType[]>([]); // 친구 목록 상태
@@ -54,7 +55,7 @@ const FriendListPage = () => {
               >
                 <div className="flex items-center gap-4">
                   <img
-                    src={friend.profilePicture}
+                    src={`${serverUrl}${friend.profilePicture}`}
                     alt="프로필"
                     className="w-10 h-10 rounded-full"
                   />
