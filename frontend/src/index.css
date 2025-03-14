@@ -3,19 +3,21 @@
 html,
 body,
 #root {
-  width: 100vw; /* 전체 화면 너비 */
-  height: 100vh; /* 전체 화면 높이 */
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: center; /* 가로 중앙 정렬 */
-  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center;
+  align-items: center;
 }
-
+body {
+  width: 600px;
+}
 #root > div {
   width: 600px;
   height: 100%;
 
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-  border-radius: 8px; /* 선택적: 모서리를 둥글게 */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }

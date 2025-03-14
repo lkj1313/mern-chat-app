@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
-const serverUrl = import.meta.env.VITE_SERVER_URL;
+import { signupAPI } from "../api/auth";
+import { toast } from "react-toastify";
+
 const SignupPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -35,29 +37,25 @@ const SignupPage = () => {
     setIsPasswordValid(validatePassword(value)); // 비밀번호 유효성 업데이트
   };
 
-  // `fetch`를 이용한 회원가입 API 요청
+  // 회원가입 API 요청
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${serverUrl}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      await signupAPI(formData);
+      toast.success("✅ 회원가입 완료! 로그인 페이지로 이동합니다.", {
+        position: "top-center", // 오른쪽 상단
+        autoClose: 3000, // 3초 후 자동 닫힘
+        hideProgressBar: false, // 진행바 표시
+        closeOnClick: true, // 클릭 시 닫힘
+        pauseOnHover: true, // 마우스 올리면 일시 정지
+        draggable: true, // 드래그 가능
+        theme: "dark", // 컬러풀한 스타일
       });
-
-      const data = await response.json(); // JSON 데이터 변환
-
-      if (!response.ok) {
-        throw new Error(data.message || "회원가입 실패");
-      }
-
-      alert("회원가입 완료! 로그인 페이지로 이동합니다.");
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (error: any) {
-      console.error("회원가입 실패:", error.message);
       alert(error.message);
     }
   };

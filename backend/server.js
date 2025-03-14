@@ -42,7 +42,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "https://13.125.224.119.nip.io",
-      "https://mern-chart-app.vercel.app",
+      "https://l-talk.vercel.app",
     ],
     methods: ["GET", "POST"],
     credentials: true,

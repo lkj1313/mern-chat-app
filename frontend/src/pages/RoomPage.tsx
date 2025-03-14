@@ -69,7 +69,7 @@ const RoomPage = () => {
   }, [messages]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col ">
       {/* ✅ 방 정보가 포함된 헤더 */}
       <Header roomInfo={room} />
 

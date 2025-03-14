@@ -46,7 +46,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
   };
 
   return (
-    <header className="bg-gray-700 min-h-25 flex items-center justify-between px-5">
+    <header className="bg-gray-700 min-h-25 flex items-center justify-between px-5 rounded-t-[8px]">
       <div className="flex items-center">
         {/* ✅ 뒤로가기 버튼 */}
         {isSearching ? (
