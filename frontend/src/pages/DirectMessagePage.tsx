@@ -13,13 +13,13 @@ const DirectMessagePage = () => {
   const { id } = useParams(); // ✅ 상대방 userId 가져오기
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  // ✅ 1:1 채팅방 정보 가져오기
+  //  1:1 채팅방 정보 가져오기
   const { chat, chatPartner } = useDirectChat(id, user);
 
-  // ✅ 소켓 연결 및 메시지 상태 관리
+  //  소켓 연결 및 메시지 상태 관리
   const { messages, sendMessage } = useMessages(chat?._id);
 
-  // ✅ `Header`에 맞게 `roomInfo` 변환
+  //  `Header`에 맞게 `roomInfo` 변환
   const roomInfo = chat
     ? {
         _id: chat._id,
@@ -31,7 +31,7 @@ const DirectMessagePage = () => {
       }
     : null;
 
-  // ✅ 텍스트 메시지를 보내는 함수
+  //  텍스트 메시지를 보내는 함수
   const handleSendMessage = () => {
     if (!message.trim() || !user || !chat?._id) return;
 
@@ -45,7 +45,7 @@ const DirectMessagePage = () => {
     setMessage("");
   };
 
-  // ✅ 이미지 메시지를 업로드하고 보내는 함수
+  //  이미지 메시지를 업로드하고 보내는 함수
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !chat?._id) return;
@@ -64,16 +64,16 @@ const DirectMessagePage = () => {
     }
   };
 
-  // ✅ 메시지가 변경될 때 자동 스크롤
+  //  메시지가 변경될 때 자동 스크롤
   useEffect(() => {
     if (messagesEndRef.current) {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100); // ✅ 100ms 지연 후 스크롤 실행 (렌더링 완료 대기)
+      }, 100); //  100ms 지연 후 스크롤 실행 (렌더링 완료 대기)
     }
   }, [messages]);
 
-  // ✅ 채팅방이 없을 경우 UI 처리
+  //  채팅방이 없을 경우 UI 처리
   if (!chat) {
     return (
       <div className="text-white text-center mt-5">
@@ -84,16 +84,16 @@ const DirectMessagePage = () => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* ✅ 1:1 채팅방에 맞게 `Header` 수정 */}
+      {/*  1:1 채팅방에 맞게 `Header` 수정 */}
       <Header roomInfo={roomInfo} />
 
-      {/* ✅ 메시지 목록 */}
+      {/*  메시지 목록 */}
       <main className="flex-1 p-5 bg-gray-800 overflow-y-auto">
         <MessageList messages={messages} currentUser={user} />
         <div ref={messagesEndRef} />
       </main>
 
-      {/* ✅ 메시지 입력창 */}
+      {/*  메시지 입력창 */}
       <MessageInput
         message={message}
         setMessage={setMessage}
