@@ -36,7 +36,7 @@ app.use(
   })
 );
 
-// ✅ Socket.io CORS 설정 (명확하게 지정)
+// ✅ Socket.io CORS 설정 \
 const io = new Server(server, {
   cors: {
     origin: [
