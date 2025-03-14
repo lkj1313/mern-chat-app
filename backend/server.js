@@ -41,7 +41,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "https://3.26.153.179.nip.io",
+      "https://13.125.224.119.nip.io",
       "https://mern-chart-app.vercel.app",
     ],
     methods: ["GET", "POST"],
