@@ -8,6 +8,7 @@ const directChatSchema = new mongoose.Schema(
     lastMessage: { type: String, default: "" },
     lastMessageSender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     lastMessageAt: { type: Date, default: Date.now }, // ✅ 기본값을 현재 시간으로 설정
+    type: { type: String, default: "direct" }, // 항상 그룹 채팅
   },
   { timestamps: true }
 );

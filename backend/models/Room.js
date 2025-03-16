@@ -25,6 +25,8 @@ const roomSchema = new mongoose.Schema(
       type: Date, // 마지막 메시지 보낸 시간
       default: null,
     },
+
+    type: { type: String, default: "group" }, // 항상 그룹 채팅
   },
   { timestamps: true } // createdAt, updatedAt 자동 생성
 );

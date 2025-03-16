@@ -4,7 +4,6 @@ import Header from "../components/Header";
 import { AiOutlinePicture } from "react-icons/ai";
 import InputField from "../components/InputField";
 import { createRoomAPI } from "../api/rooms";
-const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const CreateRoomPage = () => {
   const navigate = useNavigate();

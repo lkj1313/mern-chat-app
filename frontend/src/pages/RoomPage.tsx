@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 
-import MessageInput from "../components/chat/MessageInput";
+import MessageInput from "../components/message/MessageInput";
+import MessageList from "../components/message/MessageList";
+
 import useChatRoom from "../hooks/useChatRoom";
 import useMessages from "../hooks/useMessage";
 import { useAuth } from "../hooks/useAuth";
-import MessageList from "../components/chat/MessageList";
 
 const RoomPage = () => {
   const { user } = useAuth();

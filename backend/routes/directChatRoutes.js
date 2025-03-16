@@ -4,7 +4,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ 1:1 채팅 생성 (기존 방이 있으면 반환)
+//  1:1 채팅 생성 (기존 방이 있으면 반환)
 router.post("/create", protect, async (req, res) => {
   try {
     const { id } = req.body;
@@ -43,7 +43,7 @@ router.get("/my-direct-chats", protect, async (req, res) => {
     console.log("🔹 1:1 채팅 목록:", chats); // ✅ 디버깅 로그
 
     const formattedChats = chats.map((chat) => {
-      // ✅ 상대방 정보 가져오기 (현재 유저가 아닌 다른 유저)
+      // 상대방 정보 가져오기 (현재 유저가 아닌 다른 유저)
       const otherUser = chat.users.find(
         (user) => user._id.toString() !== userId.toString()
       );
@@ -54,8 +54,7 @@ router.get("/my-direct-chats", protect, async (req, res) => {
           ? {
               _id: otherUser._id,
               name: otherUser.name,
-              profilePicture:
-                otherUser.profilePicture || "https://via.placeholder.com/150",
+              profilePicture: otherUser.profilePicture,
             }
           : null,
         lastMessage: chat.lastMessage || "",
