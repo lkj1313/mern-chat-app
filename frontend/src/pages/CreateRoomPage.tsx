@@ -8,11 +8,11 @@ const serverUrl = import.meta.env.VITE_SERVER_URL;
 const CreateRoomPage = () => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
-  const [roomImage, setRoomImage] = useState<File | null>(null); // ✅ `File` 객체로 저장
+  const [roomImage, setRoomImage] = useState<File | null>(null); //  `File` 객체로 저장
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setRoomImage(e.target.files[0]); // ✅ File 객체 저장
+      setRoomImage(e.target.files[0]); //  File 객체 저장
     }
   };
 
@@ -29,18 +29,18 @@ const CreateRoomPage = () => {
         return;
       }
 
-      const formData = new FormData(); // ✅ FormData 객체 생성
-      formData.append("name", roomName); // ✅ 대화방 이름 추가
+      const formData = new FormData(); //  FormData 객체 생성
+      formData.append("name", roomName); // 대화방 이름 추가
       if (roomImage) {
-        formData.append("roomImage", roomImage); // ✅ 이미지 파일 추가
+        formData.append("roomImage", roomImage); // 이미지 파일 추가
       }
 
       const response = await fetch(`${serverUrl}/api/rooms/create`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ JWT 토큰 추가
+          Authorization: `Bearer ${token}`, //  JWT 토큰 추가
         },
-        body: formData, // ✅ FormData 전송
+        body: formData, //  FormData 전송
       });
 
       const data = await response.json();

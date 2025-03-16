@@ -24,6 +24,7 @@ const DirectMessagePage = () => {
   // 메시지를 내가 보낸 메시지인지 확인하는 ref
   const isMessageSent = useRef(false);
   const isFirstRender = useRef(true); // 첫 렌더링 확인
+  const prevMessageCount = useRef(0); // 메시지 개수를 추적하기 위한 ref
   //  `Header`에 맞게 `roomInfo` 변환
   const roomInfo = chat
     ? {
@@ -92,11 +93,24 @@ const DirectMessagePage = () => {
   //  스크롤 이벤트 처리 (무한 스크롤 구현)
   const handleScroll = () => {
     if (messageContainerRef.current) {
-      const { scrollTop } = messageContainerRef.current;
+      const { scrollTop, scrollHeight, clientHeight } =
+        messageContainerRef.current;
 
-      // 스크롤이 맨 위에 가까워지면 추가 메시지를 로드
+      // 스크롤이 맨 위에 가까워지면 추가 메시지 로드
       if (scrollTop === 0 && !isLoading) {
-        loadMoreMessages(); // 더 많은 메시지를 로드
+        const prevHeight = messageContainerRef.current.scrollHeight; // 이전 전체 높이 저장
+        prevMessageCount.current = messages.length; // 기존 메시지 개수 저장
+
+        loadMoreMessages(); // 추가 메시지 로드
+
+        setTimeout(() => {
+          if (messageContainerRef.current) {
+            const newHeight = messageContainerRef.current.scrollHeight; // 새로운 전체 높이
+            const heightDiff = newHeight - prevHeight; // 추가된 메시지만큼의 높이 차이
+
+            messageContainerRef.current.scrollTop = heightDiff; // 추가된 메시지만큼 아래로 이동
+          }
+        }, 100); // 메시지 로드 후, UI 업데이트를 반영하기 위해 약간의 딜레이 추가
       }
     }
   };
