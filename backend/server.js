@@ -88,18 +88,22 @@ mongoose
 
 // ✅ Socket.io 이벤트 핸들링
 io.on("connection", (socket) => {
-  console.log("🟢 User Connected:", socket.id);
+  console.log("🟢 User Connected:", "hi");
 
-  socket.on("join_room", async (roomId) => {
+  socket.on("join_room", async ({ roomId, page }) => {
     socket.join(roomId);
     console.log(`🔹 User ${socket.id} joined room: ${roomId}`);
 
     try {
+      // 페이지에 맞게 메시지 로드
+      const messagesPerPage = 20;
       const messages = await Message.find({ room: roomId })
-        .sort({ timestamp: 1 }) // 오래된 메시지부터 정렬
+        .skip((page - 1) * messagesPerPage) // 페이지 번호에 맞게 건너뛰기
+        .limit(messagesPerPage) // 20개씩 제한
+        .sort({ timestamp: -1 }) // 최신 메시지부터 정렬
         .populate("sender", "name profilePicture");
 
-      socket.emit("load_messages", messages);
+      socket.emit("load_messages", messages); // 클라이언트에 메시지 전송
     } catch (error) {
       console.error("❌ Failed to load messages:", error);
     }

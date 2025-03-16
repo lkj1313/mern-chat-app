@@ -1,4 +1,4 @@
-const SERVER_URL = import.meta.env.VITE_SERVER_URL; // ✅ 환경변수에서 백엔드 서버 주소 가져오기
+const SERVER_URL = import.meta.env.VITE_SERVER_URL; // 환경변수에서 백엔드 서버 주소 가져오기
 
 // ✅ 친구 추가 API
 export const addFriendAPI = async (friendId: string) => {
@@ -7,7 +7,7 @@ export const addFriendAPI = async (friendId: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ JWT 토큰 추가
+        Authorization: `Bearer ${localStorage.getItem("token")}`, //  JWT 토큰 추가
       },
       body: JSON.stringify({ friendId }),
     });
@@ -28,7 +28,7 @@ export const removeFriendAPI = async (friendId: string) => {
       {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ JWT 토큰 추가
+          Authorization: `Bearer ${localStorage.getItem("token")}`, //  JWT 토큰 추가
         },
       }
     );
@@ -47,7 +47,7 @@ export const fetchFriendsAPI = async () => {
     const response = await fetch(`${SERVER_URL}/api/friends`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ JWT 토큰 추가
+        Authorization: `Bearer ${localStorage.getItem("token")}`, //
       },
     });
 
@@ -67,7 +67,7 @@ export const checkFriendAPI = async (friendId: string) => {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ JWT 토큰 추가
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // JWT 토큰 추가
         },
       }
     );

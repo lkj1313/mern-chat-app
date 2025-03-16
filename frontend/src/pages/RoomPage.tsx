@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 import { useEffect, useState, useRef } from "react";
 import { uploadImageMessage } from "../api/messages";
-
 import MessageInput from "../components/chat/MessageInput";
 import useChatRoom from "../hooks/useChatRoom";
 import useMessages from "../hooks/useMessage";
@@ -10,37 +9,36 @@ import { useAuth } from "../hooks/useAuth";
 import MessageList from "../components/chat/MessageList";
 
 const RoomPage = () => {
-  // ✅ 현재 로그인한 사용자 정보 가져오기
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  // ✅ 현재 URL에서 방 ID 가져오기
+  const messageContainerRef = useRef<HTMLDivElement | null>(null); // 스크롤을 감지할 컨테이너
   const { id } = useParams();
-
-  // ✅ 입력창의 메시지 상태 관리
   const [message, setMessage] = useState("");
 
-  // ✅ 방 정보를 가져오고, 방 참가 여부를 확인하는 커스텀 훅 사용
+  // 메시지를 내가 보낸 메시지인지 확인하는 ref
+  const isMessageSent = useRef(false);
+  const isFirstRender = useRef(true); // 첫 렌더링 확인
   const { room } = useChatRoom(id, user);
+  const { messages, sendMessage, loadMoreMessages, isLoading } =
+    useMessages(id);
 
-  // ✅ 소켓 연결 및 메시지 상태 관리를 위한 훅 사용
-  const { messages, sendMessage } = useMessages(id);
-
-  // ✅ 텍스트 메시지를 보내는 함수
+  // 텍스트 메시지를 보내는 함수
   const handleSendMessage = () => {
     if (!message.trim() || !user || !id) return;
 
     const messageData = {
-      room: id, // 방 ID
-      sender: user._id, // 메시지 발신자 ID (현재 로그인한 사용자)
-      message, // 입력한 메시지 텍스트
-      timestamp: new Date().toISOString(), // 메시지 전송 시각
+      room: id,
+      sender: user._id,
+      message,
+      timestamp: new Date().toISOString(),
     };
 
     sendMessage(messageData); // 소켓을 통해 메시지 전송
     setMessage(""); // 메시지 입력창 초기화
+    isMessageSent.current = true; // 내가 보낸 메시지라는 플래그 설정
   };
 
-  // ✅ 이미지 메시지를 업로드하고 보내는 함수
+  // 이미지 메시지를 업로드하고 보내는 함수
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !id) return;
@@ -54,32 +52,67 @@ const RoomPage = () => {
         timestamp: new Date().toISOString(),
         type: "image",
       });
+      isMessageSent.current = true; // 내가 보낸 메시지 플래그 설정
     } else {
       alert("이미지 업로드 실패");
     }
   };
 
-  // ✅ 메시지가 변경될 때마다 메시지 목록 하단으로 자동 스크롤
+  // ✅ 메시지가 추가될 때만 자동 스크롤
   useEffect(() => {
-    if (messagesEndRef.current) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100); // ✅ 100ms 지연 후 스크롤 실행 (렌더링 완료 대기)
+    // 처음 렌더링 시, messages가 로딩되었을 때만 자동으로 스크롤을 내리기
+    if (
+      isFirstRender.current &&
+      messages.length > 0 &&
+      messagesEndRef.current
+    ) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      isFirstRender.current = false; // 첫 번째 렌더링 이후에는 자동 스크롤을 비활성화
     }
-  }, [messages]);
+
+    // 내가 보낸 메시지일 때만 스크롤 내리기
+    if (isMessageSent.current && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      isMessageSent.current = false; // 플래그 리셋
+    }
+  }, [messages]); // messages가 변경될 때마다 실행되지만, 첫 렌더링 이후에는 자동 스크롤만 실행
+
+  //  스크롤 이벤트 처리 (무한 스크롤 구현)
+  const handleScroll = () => {
+    if (messageContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } =
+        messageContainerRef.current;
+
+      // 스크롤이 맨 위에 가까워지면 추가 메시지를 로드
+      if (scrollTop === 0 && !isLoading) {
+        loadMoreMessages(); // 더 많은 메시지를 로드
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (messageContainerRef.current) {
+        messageContainerRef.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [isLoading]); // `isLoading`이 변경될 때마다 스크롤 이벤트를 설정
 
   return (
-    <div className="h-full flex flex-col ">
-      {/* ✅ 방 정보가 포함된 헤더 */}
+    <div className="h-full flex flex-col">
       <Header roomInfo={room} />
-
-      {/* ✅ 메시지 목록을 보여주는 메인 영역 */}
-      <main className="flex-1 p-5 bg-gray-800 overflow-y-auto">
+      <main
+        className="flex-1 p-5 bg-gray-800 overflow-y-auto"
+        ref={messageContainerRef}
+        style={{ height: "100vh" }}
+      >
         <MessageList messages={messages} currentUser={user} />
-        <div ref={messagesEndRef} /> {/* 자동 스크롤을 위한 빈 div */}
+        <div ref={messagesEndRef} />
       </main>
-
-      {/* ✅ 메시지 입력창 및 이미지 업로드 컴포넌트 */}
       <MessageInput
         message={message}
         setMessage={setMessage}
