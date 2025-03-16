@@ -82,53 +82,54 @@ const HomePage = () => {
   return (
     <div className="relative overflow-hidden">
       <Header onSearch={handleSearch} />
-      <div className="p-5 bg-gray-800 min-h-screen text-white">
-        <div className="flex flex-col gap-10">
-          {filteredRooms.map((room) => {
-            return (
-              <div
-                key={room._id}
-                onClick={
-                  () =>
-                    room.type === "direct"
-                      ? navigate(`/dm/${room.directChatPartnerId}`) // ✅ 1:1 채팅이면 상대방 ID로 이동
-                      : navigate(`/room/${room._id}`) // ✅ 그룹 채팅이면 기존 방식 유지
-                }
-                className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
-              >
-                <div className="w-16 h-16 flex-shrink-0">
-                  <img
-                    src={
-                      room.image.startsWith("/uploads/")
-                        ? `${serverUrl}${room.image}` // ✅ 상대 경로면 서버 URL 붙이기
-                        : room.image // ✅ 이미 절대 URL이면 그대로 사용
-                    }
-                    className="rounded-full w-full h-full"
-                    alt={room.name}
-                  />
-                </div>
-                <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
-                  <div className="flex justify-between">
-                    <div>{room.name}</div>
-                    <div className="text-gray-500 text-[13px] ">
-                      {formatLastMessageTime(room.lastMessageAt)}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="max-w-[300px] overflow-hidden text-gray-500 text-[15px] whitespace-nowrap text-ellipsis">
-                      {room.lastMessage && (
-                        <>
-                          <span>{room.lastMessageSender}: </span>
-                          <span>{room.lastMessage}</span>
-                        </>
-                      )}
-                    </div>
+      {/* ✅ 스크롤 가능한 컨테이너 추가 */}
+      <div className="p-5 bg-gray-800  min-h-[calc(100vh-100px)] overflow-y-auto text-white">
+        <div className="flex flex-col gap-10 max-h-[calc(100vh-300px)]">
+          {filteredRooms.map((room) => (
+            <div
+              key={room._id}
+              onClick={() =>
+                room.type === "direct"
+                  ? navigate(`/dm/${room.directChatPartnerId}`)
+                  : navigate(`/room/${room._id}`)
+              }
+              className="w-full flex gap-5 cursor-pointer hover:bg-gray-600 p-1 rounded group"
+            >
+              {/* ✅ 프로필 이미지 */}
+              <div className="w-16 h-16 flex-shrink-0">
+                <img
+                  src={
+                    room.image.startsWith("/uploads/")
+                      ? `${serverUrl}${room.image}`
+                      : room.image
+                  }
+                  className="rounded-full w-full h-full"
+                  alt={room.name}
+                />
+              </div>
+
+              {/* ✅ 채팅방 정보 */}
+              <div className="p-1 flex-grow border-b border-b-black group-hover:border-b-0">
+                <div className="flex justify-between">
+                  <div>{room.name}</div>
+                  <div className="text-gray-500 text-[13px]">
+                    {formatLastMessageTime(room.lastMessageAt)}
+                  </div>
+                </div>
+                <div>
+                  <div className="max-w-[300px] overflow-hidden text-gray-500 text-[15px] whitespace-nowrap text-ellipsis">
+                    {room.lastMessage && (
+                      <>
+                        <span>{room.lastMessageSender}: </span>
+                        <span>{room.lastMessage}</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
     </div>

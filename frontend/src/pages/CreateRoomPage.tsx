@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { AiOutlinePicture } from "react-icons/ai";
 import InputField from "../components/InputField";
+import { createRoomAPI } from "../api/rooms";
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 const CreateRoomPage = () => {
@@ -23,31 +24,11 @@ const CreateRoomPage = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("로그인이 필요합니다.");
-        return;
-      }
+      const { ok, room } = await createRoomAPI(roomName, roomImage);
 
-      const formData = new FormData(); //  FormData 객체 생성
-      formData.append("name", roomName); // 대화방 이름 추가
-      if (roomImage) {
-        formData.append("roomImage", roomImage); // 이미지 파일 추가
-      }
-
-      const response = await fetch(`${serverUrl}/api/rooms/create`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, //  JWT 토큰 추가
-        },
-        body: formData, //  FormData 전송
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      if (ok) {
         alert("대화방이 생성되었습니다!");
-        navigate(`/room/${data.room._id}`);
+        navigate(`/room/${room._id}`);
       } else {
         alert("대화방 생성에 실패했습니다.");
       }

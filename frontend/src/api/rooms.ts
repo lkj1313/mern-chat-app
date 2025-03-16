@@ -1,7 +1,31 @@
 // api/rooms.ts
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
-// ✅ 1:1 채팅 생성 API
+// 대화방 생성 API
+export const createRoomAPI = async (
+  roomName: string,
+  roomImage: File | null
+) => {
+  const token = localStorage.getItem("token");
+
+  const formData = new FormData();
+  formData.append("name", roomName);
+  if (roomImage) {
+    formData.append("roomImage", roomImage); // 이미지 파일 추가
+  }
+
+  const response = await fetch(`${serverUrl}/api/rooms/create`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`, // JWT 토큰 추가
+    },
+    body: formData, // FormData 전송
+  });
+
+  const data = await response.json();
+  return { ok: response.ok, room: data.room };
+};
+// 1:1 채팅 생성 API
 export const createDirectChatAPI = async (id: string) => {
   const token = localStorage.getItem("token");
 
@@ -17,7 +41,7 @@ export const createDirectChatAPI = async (id: string) => {
   const data = await response.json();
   return { ok: response.ok, chat: data.chat };
 };
-// 대호방 디테일정보
+// 대화화방 디테일정보
 export const fetchRoomDetailsAPI = async (roomId: string) => {
   const token = localStorage.getItem("token");
   const response = await fetch(`${serverUrl}/api/rooms/${roomId}`, {
@@ -85,7 +109,7 @@ export const fetchRoomImageAPI = async (roomId: string) => {
   return { ok: response.ok, image: data };
 };
 
-// ✅ 일반 채팅방 + 1:1 채팅방을 한 번에 가져오는 API
+// 일반 채팅방 + 1:1 채팅방을 한 번에 가져오는 API
 export const fetchAllChatsAPI = async () => {
   const token = localStorage.getItem("token");
 
