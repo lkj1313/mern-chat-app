@@ -80,8 +80,7 @@ const RoomPage = () => {
   //  스크롤 이벤트 처리 (무한 스크롤 구현)
   const handleScroll = () => {
     if (messageContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } =
-        messageContainerRef.current;
+      const { scrollTop } = messageContainerRef.current;
 
       // 스크롤이 맨 위에 가까워지면 추가 메시지를 로드
       if (scrollTop === 0 && !isLoading) {

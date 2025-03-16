@@ -12,13 +12,18 @@ const DirectMessagePage = () => {
   const { user } = useAuth();
   const { id } = useParams(); // ✅ 상대방 userId 가져오기
   const [message, setMessage] = useState("");
+  const messageContainerRef = useRef<HTMLDivElement | null>(null); // 스크롤을 감지할 컨테이너
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   //  1:1 채팅방 정보 가져오기
   const { chat, chatPartner } = useDirectChat(id, user);
 
   //  소켓 연결 및 메시지 상태 관리
-  const { messages, sendMessage } = useMessages(chat?._id);
-
+  const { messages, sendMessage, loadMoreMessages, isLoading } = useMessages(
+    chat?._id
+  );
+  // 메시지를 내가 보낸 메시지인지 확인하는 ref
+  const isMessageSent = useRef(false);
+  const isFirstRender = useRef(true); // 첫 렌더링 확인
   //  `Header`에 맞게 `roomInfo` 변환
   const roomInfo = chat
     ? {
@@ -41,7 +46,7 @@ const DirectMessagePage = () => {
       message,
       timestamp: new Date().toISOString(),
     });
-
+    isMessageSent.current = true; // 내가 보낸 메시지라는 플래그 설정
     setMessage("");
   };
 
@@ -59,36 +64,64 @@ const DirectMessagePage = () => {
         timestamp: new Date().toISOString(),
         type: "image",
       });
+      isMessageSent.current = true; // 내가 보낸 메시지라는 플래그 설정
     } else {
       alert("이미지 업로드 실패");
     }
   };
 
-  //  메시지가 변경될 때 자동 스크롤
+  // ✅ 메시지가 추가될 때만 자동 스크롤
   useEffect(() => {
-    if (messagesEndRef.current) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100); //  100ms 지연 후 스크롤 실행 (렌더링 완료 대기)
+    // 처음 렌더링 시, messages가 로딩되었을 때만 자동으로 스크롤을 내리기
+    if (
+      isFirstRender.current &&
+      messages.length > 0 &&
+      messagesEndRef.current
+    ) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      isFirstRender.current = false; // 첫 번째 렌더링 이후에는 자동 스크롤을 비활성화
     }
-  }, [messages]);
 
-  //  채팅방이 없을 경우 UI 처리
-  if (!chat) {
-    return (
-      <div className="text-white text-center mt-5">
-        채팅방을 찾을 수 없습니다.
-      </div>
-    );
-  }
+    // 내가 보낸 메시지일 때만 스크롤 내리기
+    if (isMessageSent.current && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      isMessageSent.current = false; // 플래그 리셋
+    }
+  }, [messages]); // messages가 변경될 때마다 실행되지만, 첫 렌더링 이후에는 자동 스크롤만 실행
 
+  //  스크롤 이벤트 처리 (무한 스크롤 구현)
+  const handleScroll = () => {
+    if (messageContainerRef.current) {
+      const { scrollTop } = messageContainerRef.current;
+
+      // 스크롤이 맨 위에 가까워지면 추가 메시지를 로드
+      if (scrollTop === 0 && !isLoading) {
+        loadMoreMessages(); // 더 많은 메시지를 로드
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (messageContainerRef.current) {
+        messageContainerRef.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [isLoading]); // `isLoading`이 변경될 때마다 스크롤 이벤트를 설정
   return (
     <div className="h-full flex flex-col">
       {/*  1:1 채팅방에 맞게 `Header` 수정 */}
       <Header roomInfo={roomInfo} />
 
       {/*  메시지 목록 */}
-      <main className="flex-1 p-5 bg-gray-800 overflow-y-auto">
+      <main
+        ref={messageContainerRef}
+        className="flex-1 p-5 bg-gray-800 overflow-y-auto"
+      >
         <MessageList messages={messages} currentUser={user} />
         <div ref={messagesEndRef} />
       </main>
