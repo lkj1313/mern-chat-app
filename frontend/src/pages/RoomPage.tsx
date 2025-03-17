@@ -4,14 +4,14 @@ import Header from "../components/Header";
 import MessageInput from "../components/message/MessageInput";
 import MessageList from "../components/message/MessageList";
 
-import useChatRoom from "../hooks/useChatRoom";
 import useMessages from "../hooks/useMessage";
 import { useAuth } from "../hooks/useAuth";
+import useRoomDetails from "../hooks/useRoomDetails";
 
 const RoomPage = () => {
   const { user } = useAuth();
   const { id } = useParams();
-  const { room } = useChatRoom(id, user);
+  const { room } = useRoomDetails(id, user);
 
   const {
     messages,

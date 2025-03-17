@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import { useState } from "react";
-import { useUserStore } from "../store/useUserStore";
+
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { setUser } = useUserStore();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -37,7 +36,6 @@ const LoginPage = () => {
       // ✅ JWT 토큰 저장
       localStorage.setItem("token", data.token);
 
-      // ✅ `user._id`를 Zustand와 localStorage에 함께 저장!
       const userData = {
         _id: data._id, // ✅ MongoDB에서 받은 유저 ID 저장
         name: data.name,
@@ -46,7 +44,6 @@ const LoginPage = () => {
       };
 
       localStorage.setItem("user", JSON.stringify(userData)); // ✅ localStorage에 저장
-      setUser(userData); // ✅ Zustand 상태 업데이트
 
       navigate("/home"); // 로그인 성공 후 페이지 이동
     } catch (error: any) {

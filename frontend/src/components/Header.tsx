@@ -90,7 +90,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
                 }
                 src={`${serverUrl}${roomInfo.image}`}
                 className="w-15 h-15 rounded-full cursor-pointer"
-                alt="Room Avatar"
+                alt={roomInfo.name}
               />
             </div>
             <div>

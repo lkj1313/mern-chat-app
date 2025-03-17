@@ -6,7 +6,7 @@ import { UserType } from "../types/UserType";
 import { joinRoomAPI, fetchRoomDetailsAPI } from "../api/rooms";
 
 // ✅ 채팅방 정보를 관리하는 커스텀 훅
-const useChatRoom = (roomId: string | undefined, user: UserType | null) => {
+const useRoomDetails = (roomId: string | undefined, user: UserType | null) => {
   // 방 정보를 상태로 관리
   const [room, setRoom] = useState<RoomType | null>(null);
   const navigate = useNavigate();
@@ -70,4 +70,4 @@ const useChatRoom = (roomId: string | undefined, user: UserType | null) => {
   return { room, joinRoom };
 };
 
-export default useChatRoom;
+export default useRoomDetails;
