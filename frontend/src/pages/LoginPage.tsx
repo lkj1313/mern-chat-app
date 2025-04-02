@@ -7,8 +7,8 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "test123@naver.com",
+    password: "123456!!",
   });
 
   // 입력값 변경 핸들러
