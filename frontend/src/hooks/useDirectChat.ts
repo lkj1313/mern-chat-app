@@ -12,12 +12,12 @@ const useDirectChat = (
   const [chatPartner, setChatPartner] = useState<UserType | null>(null);
   const navigate = useNavigate();
 
-  // ✅ 1:1 채팅방을 생성하거나 기존 방을 불러오는 함수
+  //  1:1 채팅방을 생성하거나 기존 방을 불러오는 함수
   const fetchOrCreateDirectChat = async () => {
     if (!userId || !currentUser) return;
 
     try {
-      // ✅ 기존 방이 없으면 자동으로 생성 (API에서 자동 처리됨)
+      //  기존 방이 없으면 자동으로 생성 (API에서 자동 처리됨)
       const response = await createDirectChatAPI(userId);
 
       if (!response.ok) {
@@ -29,7 +29,7 @@ const useDirectChat = (
       const chatData = response.chat;
       setChat(chatData);
 
-      // ✅ 상대방 정보 찾기 (내가 아닌 유저)
+      //  상대방 정보 찾기 (내가 아닌 유저)
       const partner = chatData.users.find(
         (u: { _id: string }) => u._id !== currentUser._id
       );

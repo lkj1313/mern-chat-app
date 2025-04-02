@@ -1,6 +1,6 @@
 const SERVER_URL = import.meta.env.VITE_SERVER_URL; // 환경변수에서 백엔드 서버 주소 가져오기
 
-// ✅ 친구 추가 API
+//  친구 추가 API
 export const addFriendAPI = async (friendId: string) => {
   try {
     const response = await fetch(`${SERVER_URL}/api/friends/add`, {
@@ -20,7 +20,7 @@ export const addFriendAPI = async (friendId: string) => {
   }
 };
 
-// ✅ 친구 삭제 API
+// 친구 삭제 API
 export const removeFriendAPI = async (friendId: string) => {
   try {
     const response = await fetch(
@@ -41,7 +41,7 @@ export const removeFriendAPI = async (friendId: string) => {
   }
 };
 
-// ✅ 내 친구 목록 가져오기 API
+//  내 친구 목록 가져오기 API
 export const fetchFriendsAPI = async () => {
   try {
     const response = await fetch(`${SERVER_URL}/api/friends`, {
@@ -59,7 +59,7 @@ export const fetchFriendsAPI = async () => {
   }
 };
 
-// ✅ 특정 유저가 친구인지 확인 API
+//  특정 유저가 친구인지 확인 API
 export const checkFriendAPI = async (friendId: string) => {
   try {
     const response = await fetch(

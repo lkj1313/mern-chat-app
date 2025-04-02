@@ -7,7 +7,7 @@ import { protect } from "../middleware/authMiddleware.js"; // JWT 인증 미들�
 import dotenv from "dotenv";
 dotenv.config();
 const router = express.Router();
-// ✅ `multer` 설정 (파일 저장 경로 및 이름 지정)
+//  `multer` 설정 (파일 저장 경로 및 이름 지정)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/"); // ✅ 파일을 `uploads/` 폴더에 저장
@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ✅ 1️⃣ 대화방 생성 API (로그인 필요)
+//  1️⃣ 대화방 생성 API (로그인 필요)
 router.post(
   "/create",
   protect,
@@ -52,7 +52,7 @@ router.post(
   }
 );
 
-// ✅ 대화방 목록 조회 (최신 메시지 포함)
+//  대화방 목록 조회 (최신 메시지 포함)
 router.get("/", protect, async (req, res) => {
   try {
     const rooms = await Room.find()
@@ -78,7 +78,7 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-// ✅ 내가 참여한 대화방 목록 조회 (최신 메시지 포함)
+//  내가 참여한 대화방 목록 조회 (최신 메시지 포함)
 router.get("/my", protect, async (req, res) => {
   try {
     const userId = req.user._id; // ✅ 현재 로그인한 사용자 ID
@@ -139,7 +139,7 @@ router.get("/all", protect, async (req, res) => {
       lastMessageAt: room.lastMessageAt ? room.lastMessageAt : null, // ✅ 기본값을 `null`로 변경
     }));
 
-    // ✅ 1:1 채팅 데이터 가공 (`directChatPartnerId` 추가)
+    //  1:1 채팅 데이터 가공 (`directChatPartnerId` 추가)
     const formattedDirectRooms = directRooms.map((room) => {
       const otherUser = room.users.find(
         (user) => user._id.toString() !== userId.toString()
@@ -163,7 +163,7 @@ router.get("/all", protect, async (req, res) => {
       };
     });
 
-    // ✅ 그룹 채팅 + 1:1 채팅 통합 후 최신 메시지 순으로 정렬
+    //  그룹 채팅 + 1:1 채팅 통합 후 최신 메시지 순으로 정렬
     const rooms = [...formattedGroupRooms, ...formattedDirectRooms].sort(
       (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
     );
@@ -199,20 +199,20 @@ router.put("/:id/join", protect, async (req, res) => {
     const { id } = req.params;
     const userId = req.user._id; // ✅ JWT에서 가져온 로그인한 사용자 ID
 
-    // ✅ 대화방 찾기
+    //  대화방 찾기
     const room = await Room.findById(id);
     if (!room) {
       return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
     }
 
-    // ✅ 이미 참가한 사용자라면 추가하지 않음
+    //  이미 참가한 사용자라면 추가하지 않음
     if (room.users.includes(userId)) {
       return res
         .status(200)
         .json({ message: "이미 대화방에 참가한 사용자입니다.", room });
     }
 
-    // ✅ 사용자 추가
+    //  사용자 추가
     room.users.push(userId);
     await room.save();
 
@@ -222,26 +222,26 @@ router.put("/:id/join", protect, async (req, res) => {
     res.status(500).json({ message: "서버 오류 발생" });
   }
 });
-// ✅ 4️⃣ 대화방 나가기 API (PUT 요청)
+//  4️ 대화방 나가기 API (PUT 요청)
 router.put("/:id/leave", protect, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id; // ✅ 현재 로그인한 사용자 ID
 
-    // ✅ 대화방 찾기
+    // 대화방 찾기
     const room = await Room.findById(id);
     if (!room) {
       return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
     }
 
-    // ✅ 이미 방에 참여하고 있는지 확인
+    //  이미 방에 참여하고 있는지 확인
     if (!room.users.includes(userId)) {
       return res
         .status(400)
         .json({ message: "이 방에 참여하고 있지 않습니다." });
     }
 
-    // ✅ 방에서 사용자 제거
+    //  방에서 사용자 제거
     room.users = room.users.filter(
       (user) => user.toString() !== userId.toString()
     );
@@ -260,20 +260,20 @@ router.delete("/:id", protect, async (req, res) => {
     const { id } = req.params;
     const userId = req.user._id; // ✅ 현재 로그인한 사용자 ID
 
-    // ✅ 삭제할 대화방 찾기
+    //  삭제할 대화방 찾기
     const room = await Room.findById(id);
     if (!room) {
       return res.status(404).json({ message: "대화방을 찾을 수 없습니다." });
     }
 
-    // ✅ 방장인지 확인
+    //  방장인지 확인
     if (room.createdBy.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({ message: "방장만 대화방을 삭제할 수 있습니다." });
     }
 
-    // ✅ 대화방 삭제
+    //  대화방 삭제
     await Room.findByIdAndDelete(id);
 
     res.status(200).json({ message: "대화방이 성공적으로 삭제되었습니다." });
@@ -283,18 +283,18 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
-// ✅ 특정 방의 이미지지 목록 가져오기 API
+//  특정 방의 이미지지 목록 가져오기 API
 router.get("/:roomId/image", protect, async (req, res) => {
   try {
     const { roomId } = req.params;
 
-    // ✅ 해당 방에서 이미지 메세지 찾기
+    //  해당 방에서 이미지 메세지 찾기
     const ImageMessages = await Message.find({
       room: roomId,
       imageUrl: { $exists: true, $ne: null },
     })
       .select("imageUrl sender createdAt")
-      .populate("sender", "name profilePicture"); // ✅ 보낸 사람 정보 포함
+      .populate("sender", "name profilePicture"); //  보낸 사람 정보 포함
     console.log(ImageMessages);
     res.status(200).json(ImageMessages);
   } catch (error) {

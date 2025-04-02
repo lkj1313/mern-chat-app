@@ -9,15 +9,15 @@ router.post("/create", protect, async (req, res) => {
   try {
     const { id } = req.body;
     const currentUserId = req.user.id;
-    console.log("🔍 [DEBUG] 받은 users 데이터:", req.body.users); // ✅ users 값 확인
+    console.log("🔍 [DEBUG] 받은 users 데이터:", req.body.users); //  users 값 확인
 
-    // ✅ 기존 1:1 채팅방이 있는지 확인
+    //  기존 1:1 채팅방이 있는지 확인
     let chat = await DirectChat.findOne({
       users: { $all: [currentUserId, id] },
     }).populate("users", "name profilePicture email");
 
     if (!chat) {
-      // ✅ 기존 방이 없으면 새로 생성
+      //  기존 방이 없으면 새로 생성
       chat = await DirectChat.create({
         users: [currentUserId, id],
       });

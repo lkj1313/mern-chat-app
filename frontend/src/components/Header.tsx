@@ -48,7 +48,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
   return (
     <header className="bg-gray-700 min-h-25 flex items-center justify-between px-5 rounded-t-[8px]">
       <div className="flex items-center">
-        {/* ✅ 뒤로가기 버튼 */}
+        {/*  뒤로가기 버튼 */}
         {isSearching ? (
           <IoChevronBack
             size={30}
@@ -72,7 +72,7 @@ const Header = ({ onSearch, roomInfo }: HeaderProps) => {
           />
         )}
 
-        {/* ✅ 방 이름과 이미지 (1:1 채팅 & 그룹 채팅 모두 지원) */}
+        {/*  방 이름과 이미지 (1:1 채팅 & 그룹 채팅 모두 지원) */}
         {roomInfo ? (
           <div className="flex items-center gap-3 text-white">
             <div>

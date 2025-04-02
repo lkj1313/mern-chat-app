@@ -50,7 +50,7 @@ const ProfilePage = () => {
       alert(response.message);
     }
   };
-  // ✅ 친구 삭제 함수
+  //  친구 삭제 함수
   const handleRemoveFriend = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!id) return;

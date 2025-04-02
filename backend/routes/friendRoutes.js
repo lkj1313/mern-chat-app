@@ -5,7 +5,7 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 /**
- * 🔥 1. 친구 추가 (POST /friends/add)
+ *  1. 친구 추가 (POST /friends/add)
  * 내가 친구를 추가하면 내 목록에만 저장됨
  */
 router.post("/add", protect, async (req, res) => {
@@ -42,7 +42,7 @@ router.post("/add", protect, async (req, res) => {
 });
 
 /**
- * 🔥 2. 친구 삭제 (DELETE /friends/remove/:friendId)
+ *  2. 친구 삭제 (DELETE /friends/remove/:friendId)
  * 내가 추가한 친구를 내 목록에서 삭제함
  */
 router.delete("/remove/:friendId", protect, async (req, res) => {
@@ -68,7 +68,7 @@ router.delete("/remove/:friendId", protect, async (req, res) => {
 });
 
 /**
- * 🔥 3. 내 친구 목록 조회 (GET /friends)
+ *  3. 내 친구 목록 조회 (GET /friends)
  * 내가 추가한 친구들의 목록을 가져옴
  */
 router.get("/", protect, async (req, res) => {
@@ -91,7 +91,7 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-// ✅ 특정 유저가 친구인지 확인
+//  특정 유저가 친구인지 확인
 router.get("/check/:friendId", protect, async (req, res) => {
   try {
     const { friendId } = req.params;

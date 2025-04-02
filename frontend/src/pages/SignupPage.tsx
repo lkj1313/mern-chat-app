@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import { signupAPI } from "../api/auth";
-import { toast } from "react-toastify";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -43,15 +42,7 @@ const SignupPage = () => {
 
     try {
       await signupAPI(formData);
-      toast.success("✅ 회원가입 완료! 로그인 페이지로 이동합니다.", {
-        position: "top-center", // 오른쪽 상단
-        autoClose: 3000, // 3초 후 자동 닫힘
-        hideProgressBar: false, // 진행바 표시
-        closeOnClick: true, // 클릭 시 닫힘
-        pauseOnHover: true, // 마우스 올리면 일시 정지
-        draggable: true, // 드래그 가능
-        theme: "dark", // 컬러풀한 스타일
-      });
+
       setTimeout(() => {
         navigate("/login");
       }, 3000);

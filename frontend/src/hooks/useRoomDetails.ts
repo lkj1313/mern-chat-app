@@ -5,13 +5,13 @@ import { RoomType } from "../types/RoomType";
 import { UserType } from "../types/UserType";
 import { joinRoomAPI, fetchRoomDetailsAPI } from "../api/rooms";
 
-// ✅ 채팅방 정보를 관리하는 커스텀 훅
+//  채팅방 정보를 관리하는 커스텀 훅
 const useRoomDetails = (roomId: string | undefined, user: UserType | null) => {
   // 방 정보를 상태로 관리
   const [room, setRoom] = useState<RoomType | null>(null);
   const navigate = useNavigate();
 
-  // ✅ 사용자를 방에 참가시키는 함수 (API 호출)
+  //  사용자를 방에 참가시키는 함수 (API 호출)
   const joinRoom = async () => {
     if (!roomId || !user) return;
 
@@ -28,7 +28,7 @@ const useRoomDetails = (roomId: string | undefined, user: UserType | null) => {
     }
   };
 
-  // ✅ 방 정보를 가져오고 사용자의 참여 여부를 확인하는 함수
+  //  방 정보를 가져오고 사용자의 참여 여부를 확인하는 함수
   const fetchRoom = async () => {
     if (!roomId || !user) return;
 
@@ -43,7 +43,7 @@ const useRoomDetails = (roomId: string | undefined, user: UserType | null) => {
 
       setRoom(response.data);
 
-      // ✅ 사용자가 이미 방에 있는지 확인
+      //  사용자가 이미 방에 있는지 확인
       const isUserInRoom = response.data.users.some(
         (u: { _id: string }) => u._id === user._id
       );
@@ -51,7 +51,7 @@ const useRoomDetails = (roomId: string | undefined, user: UserType | null) => {
       if (!isUserInRoom) {
         const confirmJoin = window.confirm("방에 참가하시겠습니까?");
         if (confirmJoin) {
-          await joinRoom(); // ✅ joinRoom()을 여기서 실행
+          await joinRoom();
         } else {
           navigate("/home");
         }
@@ -62,7 +62,6 @@ const useRoomDetails = (roomId: string | undefined, user: UserType | null) => {
     }
   };
 
-  // ✅ useEffect에서 fetchRoom 호출 (초기 실행)
   useEffect(() => {
     fetchRoom();
   }, [roomId, user]);
