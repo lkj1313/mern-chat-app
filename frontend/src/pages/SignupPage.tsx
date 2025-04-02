@@ -42,10 +42,8 @@ const SignupPage = () => {
 
     try {
       await signupAPI(formData);
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
+      alert("회원가입이 완료되었습니다!");
+      navigate("/login");
     } catch (error: any) {
       alert(error.message);
     }
