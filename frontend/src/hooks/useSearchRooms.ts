@@ -15,7 +15,7 @@ export const useSearchRooms = (allRooms: RoomType[], joinRooms: RoomType[]) => {
       return;
     }
 
-    // **모든 채팅방**을 기준으로 검색하기
+    // 모든 채팅방을 기준으로 검색하기
     const filtered = allRooms.filter((room) =>
       room.name.toLowerCase().includes(query.toLowerCase())
     );
