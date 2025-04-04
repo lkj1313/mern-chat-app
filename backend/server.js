@@ -30,25 +30,27 @@ const server = http.createServer(app);
 // ✅ Express CORS 설정
 app.use(
   cors({
-    origin: "*", // 모든 도메인 허용 (임시)
+    origin: [
+      "http://localhost:5173",
+      "https://15.165.66.153.nip.io",
+      "https://l-talk-8g85s1dub-lkj1313s-projects.vercel.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
-
 // ✅ Socket.io CORS 설정 \
 const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "https://13.125.224.119.nip.io",
-      "https://l-talk.vercel.app",
+      "https://15.165.66.153.nip.io",
+      "https://l-talk-8g85s1dub-lkj1313s-projects.vercel.app",
     ],
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
-
 app.use((req, res, next) => {
   console.log("🌍 요청 Origin:", req.headers.origin); // 🔥 요청의 Origin 확인
   next();

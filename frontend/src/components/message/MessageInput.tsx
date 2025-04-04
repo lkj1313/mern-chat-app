@@ -23,6 +23,8 @@ const MessageInput = ({
   const inputRef = useRef<HTMLInputElement | null>(null); // 메시지 입력창 참조
   const fileInputRef = useRef<HTMLInputElement | null>(null); // 파일 입력창 참조
 
+
+  
   // 이모지를 입력 필드에 추가하는 함수
   const handleEmojiClick = (emojiObject: any) => {
     setMessage((prev: string) => prev + emojiObject.emoji);

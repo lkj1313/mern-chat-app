@@ -92,7 +92,7 @@ const useMessages = (roomId: string | undefined) => {
     socket.emit("send_message", messageData); // 메시지를 서버로 전송
   };
 
-  // ✅ 자동 스크롤 처리
+  // 내가 메세지를 보냈을떄, 처음렌더링 됐을떄 스크롤 맨아래로 이동
   useEffect(() => {
     if (
       isFirstRender.current &&
@@ -110,7 +110,7 @@ const useMessages = (roomId: string | undefined) => {
   }, [messages]);
 
   // ✅ 무한 스크롤 처리
-  // 무한 스크롤
+
   // 스크롤 이벤트 핸들러
   const handleScroll = () => {
     const container = messageContainerRef.current;
@@ -133,7 +133,6 @@ const useMessages = (roomId: string | undefined) => {
 
   // 메시지 목록이 바뀐 후 실행되는 훅 (messages 상태가 변경될 때마다 실행)
   useEffect(() => {
-    // 이전에 scrollHeight 저장해놨고, 현재 컨테이너 존재하며, 실제로 메시지가 추가된 경우
     if (
       shouldRestoreScrollRef.current &&
       messageContainerRef.current &&
