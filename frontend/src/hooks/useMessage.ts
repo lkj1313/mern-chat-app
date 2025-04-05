@@ -58,7 +58,7 @@ const useMessages = (roomId: string | undefined) => {
 
     const messageData = {
       room: roomId,
-      sender: user._id, // or use user._id
+      sender: user._id,
       message,
       timestamp: new Date().toISOString(),
     };
@@ -74,10 +74,10 @@ const useMessages = (roomId: string | undefined) => {
     if (!file || !roomId) return;
 
     const response = await uploadImageMessage(file); // 서버로 이미지 업로드
-    if (response.ok) {
+    if (response.ok && user) {
       sendMessage({
         room: roomId,
-        sender: socket.id, // or use user._id
+        sender: user._id, //
         imageUrl: response.imageUrl, // 서버로부터 받은 이미지 URL
         timestamp: new Date().toISOString(),
         type: "image",

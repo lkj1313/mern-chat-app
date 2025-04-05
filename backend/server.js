@@ -39,6 +39,7 @@ app.use(
     credentials: true,
   })
 );
+
 // ✅ Socket.io CORS 설정 \
 const io = new Server(server, {
   cors: {
@@ -51,6 +52,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
 app.use((req, res, next) => {
   console.log("🌍 요청 Origin:", req.headers.origin); // 🔥 요청의 Origin 확인
   next();
