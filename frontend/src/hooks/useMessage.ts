@@ -25,6 +25,7 @@ const useMessages = (roomId: string | undefined) => {
       socket.connect();
     }
 
+    // 현재 채팅방(roomId)과 페이지 정보를 서버에 전달하여 참여
     socket.emit("join_room", { roomId, page });
 
     const loadMessages = (page: number) => {
@@ -33,7 +34,7 @@ const useMessages = (roomId: string | undefined) => {
     };
 
     loadMessages(page);
-
+    // 서버로부터 메시지 목록을 수신하면 상태에 추가
     socket.on("load_messages", (newMessages: MessageType[]) => {
       setMessages((prevMessages) => [
         ...newMessages.reverse(),
@@ -72,17 +73,25 @@ const useMessages = (roomId: string | undefined) => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !roomId) return;
+    const MAX_IMAGE_SIZE_MB = 1; // 1MB 제한
+    const fileSizeMB = file.size / (1024 * 1024); // 바이트 → 메가바이트
+    if (fileSizeMB > MAX_IMAGE_SIZE_MB) {
+      alert(
+        `이미지 크기는 최대 ${MAX_IMAGE_SIZE_MB}MB까지 업로드할 수 있습니다.`
+      );
+      return;
+    }
 
-    const response = await uploadImageMessage(file); // 서버로 이미지 업로드
+    const response = await uploadImageMessage(file);
     if (response.ok && user) {
       sendMessage({
         room: roomId,
-        sender: user._id, //
-        imageUrl: response.imageUrl, // 서버로부터 받은 이미지 URL
+        sender: user._id,
+        imageUrl: response.imageUrl,
         timestamp: new Date().toISOString(),
         type: "image",
       });
-      isMessageSent.current = true; // 내가 보낸 메시지 플래그 설정
+      isMessageSent.current = true;
     } else {
       alert("이미지 업로드 실패");
     }
